@@ -8,6 +8,7 @@ function chooseArrayPartRandom(featuresCut) {
   featuresCut = featuresCut.slice(Math.round(getRandomArbitary(0, 4)));
   return featuresCut;
 }
+
 // Объявляем переменные
 var elementsList = [];
 // Содержимое объекта места жительства
@@ -74,4 +75,45 @@ for (i = 0; i < elementsList.length; i++) {
   fragment.appendChild(renderPin(elementsList[i]));
 }
 pinContainer.appendChild(fragment);
-// dfgfd
+// Находим шаблон и контейнер для отрисовки Объявления
+var noticeTemplate = templateDoc.content.querySelector('.map__card');
+var noticeContainer = document.querySelector('.map');
+// Функция определения типа жилья
+function declareFlatType(elementsList) {
+  if (elementsList.offer.type === 'flat') {
+    return 'Квартира';
+  } else if (elementsList.offer.type === 'bungalo') {
+    return 'Бунгало';
+  } else if (elementsList.offer.type === 'house') {
+    return 'Дом';
+  }
+}
+// Функция для генерирования списка удобств
+var featuresArray = [];
+var renderFeatures = function (elementsList) {
+  return '<li class="feature feature--' + elementsList.offer.features[i] + '"></li>';
+};
+// Функция отрисовки объявления
+var renderNotice = function (elementsList) {
+  var noticeElement = noticeTemplate.cloneNode(true);
+  noticeElement.children[2].textContent = elementsList.offer.title;
+  noticeElement.children[3].children[0].textContent = elementsList.location.x + ', ' + elementsList.location.y;
+  noticeElement.children[4].textContent = elementsList.offer.price + '&#x20bd;/ночь';
+  noticeElement.children[5].textContent = declareFlatType(elementsList);
+  noticeElement.children[6].textContent = elementsList.offer.rooms + ' для ' + elementsList.offer.guests + ' гостей';
+  noticeElement.children[7].textContent = 'Зазед после ' + elementsList.offer.checkin + ', выезд до ' + elementsList.offer.checkout;
+  var featuresNotice = noticeElement.querySelector('.popup__features');
+  for (i = 0; i < elementsList.offer.features.length; i++) {
+    featuresArray.push(renderFeatures(elementsList));
+  }
+  featuresNotice.innerHTML = featuresArray.join(' ');
+  noticeElement.children[9].textContent = elementsList.offer.description;
+  noticeElement.children[0].setAttribute('src', elementsList.author.avatar);
+  console.log(noticeElement.children[0]);
+  return noticeElement;
+};
+// Отрисовка через вызов функции в цикле
+for (i = 0; i < 1; i++) {
+  fragment.appendChild(renderNotice(elementsList[i]));
+}
+noticeContainer.appendChild(fragment);
