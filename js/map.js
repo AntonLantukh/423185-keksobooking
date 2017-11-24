@@ -25,9 +25,10 @@ var offer = {
   'photos': []
 };
 // Функция генерации элемента
+var i = 1;
 var elementCreate = function (j) {
   var element = {
-    author: {'avatar': 'img/avatars/user0' + j + '.png'},
+    author: {'avatar': 'img/avatars/user0' + i + '.png'},
     offer: {
       'title': offer.title[j],
       'address': '{{location.x}}, {{location.y}}',
@@ -46,7 +47,7 @@ var elementCreate = function (j) {
       'y': Math.round(getRandomArbitary(100, 500))
     }
   };
-  console.log(element);
+  i++;
   return element;
 };
 // Задаем цикл для функции генерации элемента
@@ -57,15 +58,20 @@ for (var j = 0; j < 8; j++) {
 var mapDisplay = document.querySelector('.map--faded');
 mapDisplay.classList.remove('hidden');
 // Находим шаблон и контейнер для отрисовки метки
-var pinTemplate = document.querySelector('map__pin');
-var pinContainer = document.querySelector('map');
+var templateDoc = document.querySelector('template');
+var pinTemplate = templateDoc.content.querySelector('.map__pin');
+var pinContainer = document.querySelector('.map__pins');
 // Функция отрисовки метки
 var renderPin = function (elementsList) {
   var pinElement = pinTemplate.cloneNode(true);
-  pinElement.setAttribute('style', 'left: ' + elementsList.location.x + ';');
-  pinElement.setAttribute('style', 'right: ' + elementsList.location.y + ';');
-  pinElement.setAttribute('src', 'right: ' + elementsList.location.y + ';');
-  pinElement.querySelector('.setup-similar-label').textContent = wizard.name;
-  pinElement.querySelector('.wizard-coat').style.fill = wizard.coatColor;
+  pinElement.setAttribute('style', 'left: ' + elementsList.location.x + 'px' + '; top: ' + elementsList.location.y + 'px');
+  pinElement.children[0].setAttribute('src', elementsList.author.avatar);
   return pinElement;
+};
+// Отрисовка через вызов функции в цикле
+var fragment = document.createDocumentFragment();
+for (i = 0; i < elementsList.length; i++) {
+  fragment.appendChild(renderPin(elementsList[i]));
 }
+pinContainer.appendChild(fragment);
+// dfgfd
