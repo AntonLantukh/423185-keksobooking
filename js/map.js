@@ -8,7 +8,16 @@ function chooseArrayPartRandom(featuresCut) {
   featuresCut = featuresCut.slice(Math.round(getRandomArbitary(0, 4)));
   return featuresCut;
 }
-
+// Функция для перемешивания массива
+function shuffleArray(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
+}
 // Объявляем переменные
 var elementsList = [];
 // Содержимое объекта места жительства
@@ -27,25 +36,25 @@ var offer = {
 };
 // Функция генерации элемента
 var i = 1;
-var elementCreate = function (j) {
+var elementCreate = function (j, info) {
   var element = {
     author: {'avatar': 'img/avatars/user0' + i + '.png'},
     offer: {
-      'title': offer.title[j],
-      'address': '{{location.x}}, {{location.y}}',
+      'title': info.title[j],
+      'address': Math.round(getRandomArbitary(300, 900)) - 40 + ', ' + Math.round(getRandomArbitary(100, 500)) - 40,
       'price': Math.round(getRandomArbitary(1000, 1000000)),
-      'type': offer.type[Math.round(getRandomArbitary(0, 2))],
+      'type': info.type[Math.round(getRandomArbitary(0, 2))],
       'rooms': Math.round(getRandomArbitary(1, 5)),
-      'guests': Math.round(getRandomArbitary(1, 10)),
-      'checkin': offer.checkin[Math.round(getRandomArbitary(0, 2))],
-      'checkout': offer.checkout[Math.round(getRandomArbitary(0, 2))],
-      'features': chooseArrayPartRandom(offer.features),
+      'guests': Math.round(getRandomArbitary(1, 8)),
+      'checkin': info.checkin[Math.round(getRandomArbitary(0, 2))],
+      'checkout': info.checkout[Math.round(getRandomArbitary(0, 2))],
+      'features': chooseArrayPartRandom(shuffleArray(info.features)),
       'description': '',
       'photos': []
     },
     location: {
-      'x': Math.round(getRandomArbitary(300, 900)),
-      'y': Math.round(getRandomArbitary(100, 500))
+      'x': Math.round(getRandomArbitary(300, 900)) - 40,
+      'y': Math.round(getRandomArbitary(100, 500)) - 40
     }
   };
   i++;
@@ -53,7 +62,7 @@ var elementCreate = function (j) {
 };
 // Задаем цикл для функции генерации элемента
 for (var j = 0; j < 8; j++) {
-  elementsList[j] = elementCreate(j);
+  elementsList[j] = elementCreate(j, offer);
 }
 // Убираем класс .map--faded
 var mapDisplay = document.querySelector('.map--faded');
@@ -63,10 +72,10 @@ var templateDoc = document.querySelector('template');
 var pinTemplate = templateDoc.content.querySelector('.map__pin');
 var pinContainer = document.querySelector('.map__pins');
 // Функция отрисовки метки
-var renderPin = function (elementsList) {
+var renderPin = function (list) {
   var pinElement = pinTemplate.cloneNode(true);
-  pinElement.setAttribute('style', 'left: ' + elementsList.location.x + 'px' + '; top: ' + elementsList.location.y + 'px');
-  pinElement.children[0].setAttribute('src', elementsList.author.avatar);
+  pinElement.setAttribute('style', 'left: ' + list.location.x + 'px' + '; top: ' + list.location.y + 'px');
+  pinElement.children[0].setAttribute('src', list.author.avatar);
   return pinElement;
 };
 // Отрисовка через вызов функции в цикле
@@ -79,37 +88,38 @@ pinContainer.appendChild(fragment);
 var noticeTemplate = templateDoc.content.querySelector('.map__card');
 var noticeContainer = document.querySelector('.map');
 // Функция определения типа жилья
-function declareFlatType(elementsList) {
-  if (elementsList.offer.type === 'flat') {
-    return 'Квартира';
-  } else if (elementsList.offer.type === 'bungalo') {
-    return 'Бунгало';
-  } else if (elementsList.offer.type === 'house') {
-    return 'Дом';
+function declareFlatType(list) {
+  var type;
+  if (list.offer.type === 'flat') {
+    type = 'Квартира';
+  } else if (list.offer.type === 'bungalo') {
+    type = 'Бунгало';
+  } else if (list.offer.type === 'house') {
+    type = 'Дом';
   }
+  return type;
 }
 // Функция для генерирования списка удобств
 var featuresArray = [];
-var renderFeatures = function (elementsList) {
-  return '<li class="feature feature--' + elementsList.offer.features[i] + '"></li>';
+var renderFeatures = function (list) {
+  return '<li class="feature feature--' + list.offer.features[i] + '"></li>';
 };
 // Функция отрисовки объявления
-var renderNotice = function (elementsList) {
+var renderNotice = function (list) {
   var noticeElement = noticeTemplate.cloneNode(true);
-  noticeElement.children[2].textContent = elementsList.offer.title;
-  noticeElement.children[3].children[0].textContent = elementsList.location.x + ', ' + elementsList.location.y;
-  noticeElement.children[4].textContent = elementsList.offer.price + '&#x20bd;/ночь';
-  noticeElement.children[5].textContent = declareFlatType(elementsList);
-  noticeElement.children[6].textContent = elementsList.offer.rooms + ' для ' + elementsList.offer.guests + ' гостей';
-  noticeElement.children[7].textContent = 'Зазед после ' + elementsList.offer.checkin + ', выезд до ' + elementsList.offer.checkout;
+  noticeElement.children[2].textContent = list.offer.title;
+  noticeElement.children[3].children[0].textContent = list.location.x + ', ' + list.location.y;
+  noticeElement.children[4].textContent = list.offer.price + '&#x20bd;/ночь';
+  noticeElement.children[5].textContent = declareFlatType(list);
+  noticeElement.children[6].textContent = list.offer.rooms + ' для ' + list.offer.guests + ' гостей';
+  noticeElement.children[7].textContent = 'Зазед после ' + list.offer.checkin + ', выезд до ' + list.offer.checkout;
   var featuresNotice = noticeElement.querySelector('.popup__features');
-  for (i = 0; i < elementsList.offer.features.length; i++) {
-    featuresArray.push(renderFeatures(elementsList));
+  for (i = 0; i < list.offer.features.length; i++) {
+    featuresArray.push(renderFeatures(list));
   }
   featuresNotice.innerHTML = featuresArray.join(' ');
-  noticeElement.children[9].textContent = elementsList.offer.description;
-  noticeElement.children[0].setAttribute('src', elementsList.author.avatar);
-  console.log(noticeElement.children[0]);
+  noticeElement.children[9].textContent = list.offer.description;
+  noticeElement.children[0].setAttribute('src', list.author.avatar);
   return noticeElement;
 };
 // Отрисовка через вызов функции в цикле
