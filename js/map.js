@@ -11,7 +11,8 @@ var noticeTemplate = document.querySelector('template').content.querySelector('.
 var noticeContainer = document.querySelector('.map');
 
 // Объявляем переменные
-var i = 1;
+var i = 0;
+var j = 1;
 var elementsList = [];
 var featuresArray = [];
 var offer = {
@@ -19,8 +20,8 @@ var offer = {
   'address': '{{location.x}}, {{location.y}}',
   'price': range(1000, 1000000),
   'type': ['flat', 'house', 'bungalo'],
-  'rooms': Math.round(range(1, 5)),
-  'guests': Math.round(range(1, 10)),
+  'rooms': range(1, 5),
+  'guests': range(1, 8),
   'checkin': ['12:00', '13:00', '14:00'],
   'checkout': ['12:00', '13:00', '14:00'],
   'features': ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
@@ -33,8 +34,9 @@ var offer = {
 mapDisplay.classList.remove('hidden');
 
 // Задаем цикл для функции генерации элемента (метки)
-for (var j = 0; j < 8; j++) {
-  elementsList[j] = elementCreate(j, offer);
+for (i = 0; i < 8; i++) {
+  elementsList[i] = pinCreate(offer);
+  j++;
 }
 
 // Отрисовка меток через вызов функции в цикле
@@ -45,34 +47,33 @@ pinContainer.appendChild(fragment);
 
 // Отрисовка объявления через вызов функции в цикле
 for (i = 0; i < 1; i++) {
-  fragment.appendChild(noticeCreate(elementsList[i]));
+  fragment.appendChild(renderNotice(elementsList[i]));
 }
 noticeContainer.appendChild(fragment);
 
 
 // Функция генерации элемента (метки)
-function elementCreate(j, info) {
+function pinCreate(info) {
   var element = {
-    author: {'avatar': 'img/avatars/user0' + i + '.png'},
+    author: {'avatar': 'img/avatars/user0' + j + '.png'},
     offer: {
-      'title': info.title[j],
-      'address': Math.round(range(300, 900)) - 40 + ', ' + Math.round(range(100, 500)) - 40,
-      'price': Math.round(range(1000, 1000000)),
-      'type': info.type[Math.round(range(0, 2))],
-      'rooms': Math.round(range(1, 5)),
-      'guests': Math.round(range(1, 8)),
-      'checkin': info.checkin[Math.round(range(0, 2))],
-      'checkout': info.checkout[Math.round(range(0, 2))],
-      'features': chooseArrayPartRandom(shuffleArray(info.features)),
+      'title': info.title[i],
+      'address': (range(300, 900) - 40) + ', ' + (range(100, 500) - 40),
+      'price': range(1000, 1000000),
+      'type': info.type[range(0, 2)],
+      'rooms': range(1, 5),
+      'guests': range(1, 8),
+      'checkin': info.checkin[range(0, 2)],
+      'checkout': info.checkout[range(0, 2)],
+      'features': shuffleArray(info.features, i, j),
       'description': '',
       'photos': []
     },
     location: {
-      'x': Math.round(range(300, 900)) - 40,
-      'y': Math.round(range(100, 500)) - 40
+      'x': range(300, 900) - 40,
+      'y': range(100, 500) - 40
     }
   };
-  i++;
   return element;
 }
 
@@ -97,13 +98,13 @@ function defineFlatType(list) {
   return type;
 }
 
-// Функция для генерирования списка удобств
-var renderFeatures = function (list) {
+// Функция для создания списка удобств в рамках тега li
+function createFeatures(list) {
   return '<li class="feature feature--' + list.offer.features[i] + '"></li>';
-};
+}
 
 // Функция отрисовки объявления
-var noticeCreate = function (list) {
+function renderNotice(list) {
   var noticeElement = noticeTemplate.cloneNode(true);
   noticeElement.children[2].textContent = list.offer.title;
   noticeElement.children[3].children[0].textContent = list.location.x + ', ' + list.location.y;
@@ -113,32 +114,26 @@ var noticeCreate = function (list) {
   noticeElement.children[7].textContent = 'Зазед после ' + list.offer.checkin + ', выезд до ' + list.offer.checkout;
   var featuresNotice = noticeElement.querySelector('.popup__features');
   for (i = 0; i < list.offer.features.length; i++) {
-    featuresArray.push(renderFeatures(list));
+    featuresArray.push(createFeatures(list));
   }
   featuresNotice.innerHTML = featuresArray.join(' ');
   noticeElement.children[9].textContent = list.offer.description;
   noticeElement.children[0].setAttribute('src', list.author.avatar);
   return noticeElement;
-};
+}
 
-// Функция для перемешивания массива
-function shuffleArray(array) {
-  for (i = array.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
+// Функция для перемешивания массива и его обрезания
+function shuffleArray(array, l, m) {
+  for (l = array.length - 1; l > 0; l--) {
+    m = Math.floor(Math.random() * (l + 1));
+    var temp = array[l];
+    array[l] = array[m];
+    array[m] = temp;
   }
-  return array;
+  return array.slice(range(0, 4));
 }
 
 // Функция для определения случайного числа в диапазоне
 function range(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-// Функция для случайного обрезания массива
-function chooseArrayPartRandom(featuresCut) {
-  featuresCut = featuresCut.slice(Math.round(range(0, 4)));
-  return featuresCut;
+  return Math.round(Math.random() * (max - min) + min);
 }
