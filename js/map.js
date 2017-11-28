@@ -32,52 +32,26 @@ var offer = {
 // Убираем класс .map--faded
 mapDisplay.classList.remove('hidden');
 
-// Отрисовка через вызов функции в цикле
-for (i = 0; i < 1; i++) {
-  fragment.appendChild(renderNotice(elementsList[i]));
-}
-noticeContainer.appendChild(fragment);
-
-// Задаем цикл для функции генерации элемента
+// Задаем цикл для функции генерации элемента (метки)
 for (var j = 0; j < 8; j++) {
   elementsList[j] = elementCreate(j, offer);
 }
 
-// Отрисовка через вызов функции в цикле
+// Отрисовка меток через вызов функции в цикле
 for (i = 0; i < elementsList.length; i++) {
   fragment.appendChild(renderPin(elementsList[i]));
 }
 pinContainer.appendChild(fragment);
 
-
-// Функция отрисовки метки
-var renderPin = function (list) {
-  var pinElement = pinTemplate.cloneNode(true);
-  pinElement.setAttribute('style', 'left: ' + list.location.x + 'px' + '; top: ' + list.location.y + 'px');
-  pinElement.children[0].setAttribute('src', list.author.avatar);
-  return pinElement;
-};
-
-// Функция определения типа жилья
-function declareFlatType(list) {
-  var type;
-  if (list.offer.type === 'flat') {
-    type = 'Квартира';
-  } else if (list.offer.type === 'bungalo') {
-    type = 'Бунгало';
-  } else if (list.offer.type === 'house') {
-    type = 'Дом';
-  }
-  return type;
+// Отрисовка объявления через вызов функции в цикле
+for (i = 0; i < 1; i++) {
+  fragment.appendChild(noticeCreate(elementsList[i]));
 }
+noticeContainer.appendChild(fragment);
 
-// Функция для генерирования списка удобств
-var renderFeatures = function (list) {
-  return '<li class="feature feature--' + list.offer.features[i] + '"></li>';
-};
 
-// Функция генерации элемента
-var elementCreate = function (j, info) {
+// Функция генерации элемента (метки)
+function elementCreate(j, info) {
   var element = {
     author: {'avatar': 'img/avatars/user0' + i + '.png'},
     offer: {
@@ -100,15 +74,41 @@ var elementCreate = function (j, info) {
   };
   i++;
   return element;
+}
+
+// Функция отрисовки метки
+function renderPin(list) {
+  var pinElement = pinTemplate.cloneNode(true);
+  pinElement.setAttribute('style', 'left: ' + list.location.x + 'px' + '; top: ' + list.location.y + 'px');
+  pinElement.children[0].setAttribute('src', list.author.avatar);
+  return pinElement;
+}
+
+// Функция определения типа жилья
+function defineFlatType(list) {
+  var type;
+  if (list.offer.type === 'flat') {
+    type = 'Квартира';
+  } else if (list.offer.type === 'bungalo') {
+    type = 'Бунгало';
+  } else if (list.offer.type === 'house') {
+    type = 'Дом';
+  }
+  return type;
+}
+
+// Функция для генерирования списка удобств
+var renderFeatures = function (list) {
+  return '<li class="feature feature--' + list.offer.features[i] + '"></li>';
 };
 
 // Функция отрисовки объявления
-var renderNotice = function (list) {
+var noticeCreate = function (list) {
   var noticeElement = noticeTemplate.cloneNode(true);
   noticeElement.children[2].textContent = list.offer.title;
   noticeElement.children[3].children[0].textContent = list.location.x + ', ' + list.location.y;
   noticeElement.children[4].textContent = list.offer.price + '&#x20bd;/ночь';
-  noticeElement.children[5].textContent = declareFlatType(list);
+  noticeElement.children[5].textContent = defineFlatType(list);
   noticeElement.children[6].textContent = list.offer.rooms + ' для ' + list.offer.guests + ' гостей';
   noticeElement.children[7].textContent = 'Зазед после ' + list.offer.checkin + ', выезд до ' + list.offer.checkout;
   var featuresNotice = noticeElement.querySelector('.popup__features');
