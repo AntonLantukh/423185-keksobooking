@@ -138,3 +138,68 @@ function shuffle(array) {
 
   return array;
 }
+
+
+// Элементы пинов и формы
+var pinMain = document.querySelector('.map__pin--main');
+var map = document.querySelector('.map--faded');
+var form = document.querySelector('.notice__form--disabled');
+var formFieldset = document.querySelectorAll('.form__element');
+var popupClose = document.querySelector('template').content.querySelector('.popup__close');
+var popupOpen = document.querySelector('template').content.querySelector('.map__pin');
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
+console.log(document.querySelector('template').content.querySelector('popup__close'));
+
+// Поведение формы и карты при нажатии на пин
+pinMain.addEventListener('mouseup', function () {
+  for (i = 0; i < formFieldset.length; i++) {
+    formFieldset[i].disabled = false;
+  }
+  map.classList.remove('map--faded');
+  form.classList.remove('notice__form--disabled');
+});
+
+// Функция открытия окна
+function openPopup() {
+  mapDisplay.classList.remove('hidden');
+  document.addEventListener('keydown', onPopEscPress);
+}
+
+// Функция закрытия при нажатии на крестик
+function closePopup() {
+  mapDisplay.classList.add('hidden');
+  document.removeEventListener('keydown', onPopEscPress);
+}
+
+// Функция закрытия при нажатии на крестик
+function onPopEscPress(evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+}
+
+// Закрытие при клике на крестик
+popupClose.addEventListener('click', function () {
+  closePopup();
+});
+
+// Закрытие при нажатии на ESC
+popupClose.addEventListener('click', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closePopup();
+  }
+});
+
+// Открытие при клике на метку
+popupOpen.addEventListener('click', function () {
+  openPopup();
+});
+
+// Открытие при нажатии ENTER на меткие
+popupOpen.addEventListener('click', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    openPopup();
+  }
+});
