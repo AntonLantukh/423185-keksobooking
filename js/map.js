@@ -1,7 +1,6 @@
 'use strict';
 
 // Находим шаблон и контейнер для отрисовки метки
-var mapDisplay = document.querySelector('.map--faded');
 var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var pinContainer = document.querySelector('.map__pins');
 var fragment = document.createDocumentFragment();
@@ -9,6 +8,14 @@ var fragment = document.createDocumentFragment();
 // Находим шаблон и контейнер для отрисовки Объявления
 var noticeTemplate = document.querySelector('template').content.querySelector('.map__card');
 var noticeContainer = document.querySelector('.map');
+
+// Элементы пинов и формы
+var pinMain = document.querySelector('.map__pin--main');
+var map = document.querySelector('.map--faded');
+var form = document.querySelector('.notice__form--disabled');
+var formFieldset = document.querySelector('.form__element');
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 
 // Объявляем переменные
 var fakeOfferData = {
@@ -25,24 +32,62 @@ var fakeOfferData = {
   'photos': []
 };
 
-// Убираем класс .map--faded
-mapDisplay.classList.remove('hidden');
 
-// Задаем цикл для функции генерации элемента (метки)
-for (var i = 0; i < 8; i++) {
-  var pinObject = pinCreate(i, fakeOfferData);
-  var pinNode = renderPin(pinObject);
-
-  fragment.appendChild(pinNode);
-
-  // Блок с данными о метке рендерим только для первого оффера
-  if (i === 0) {
-    var noticeNode = renderNotice(pinObject);
-    noticeContainer.appendChild(noticeNode);
+// Поведение формы и карты при нажатии на пин
+pinMain.addEventListener('mouseup', function () {
+  // Задаем цикл для функции генерации элемента (метки)
+  if (map.classList.contains('map--faded')) {
+    for (var i = 0; i < 8; i++) {
+      var pinObject = pinCreate(i, fakeOfferData);
+      var pinNode = renderPin(pinObject);
+      fragment.appendChild(pinNode);
+      if (i === 0) {
+        var noticeNode = renderNotice(pinObject);
+        noticeContainer.appendChild(noticeNode);
+      }
+    }
+    pinContainer.appendChild(fragment);
+    enableFields();
   }
-}
+});
 
-pinContainer.appendChild(fragment);
+// Делегирование
+var mapOne = document.querySelector('.map');
+mapOne.addEventListener('mouseup', function () {
+  var target = event.target.parentNode;
+  if (target.classList.contains('map__pin') && !target.classList.contains('map__pin--main')) {
+    var popup = mapOne.querySelector('.popup');
+    // Открытие попапа при нажатии на ENTER
+    target.addEventListener('keydown', function (event) {
+      if (event.keyCode === ENTER_KEYCODE) {
+        openPopup(popup);
+      }
+    });
+    // Открытие попапа при клике
+    target.addEventListener('click', function () {
+      openPopup(popup);
+    });
+    var pinSelected = document.querySelector('.map__pin--main');
+    if (!pinSelected.previousSibling) {
+      return;
+    } else {
+      pinSelected.classList.remove('map__pin--main');
+    }
+    target.classList.add('map__pin--main');
+  }
+  var popupClose = mapOne.querySelector('.popup__close');
+  // Закрытие при клике на крестик
+  popupClose.addEventListener('click', function () {
+    closePopup(popup);
+  });
+  // Закрытие при нажатии на ESC
+  popupClose.addEventListener('click', function (event) {
+    if (event.keyCode === ENTER_KEYCODE) {
+      closePopup(popup);
+    }
+  });
+});
+
 
 // Функция генерации элемента (метки)
 function pinCreate(id, info) {
@@ -139,37 +184,24 @@ function shuffle(array) {
   return array;
 }
 
-
-// Элементы пинов и формы
-var pinMain = document.querySelector('.map__pin--main');
-var map = document.querySelector('.map--faded');
-var form = document.querySelector('.notice__form--disabled');
-var formFieldset = document.querySelectorAll('.form__element');
-var popupClose = document.querySelector('template').content.querySelector('.popup__close');
-var popupOpen = document.querySelector('template').content.querySelector('.map__pin');
-var ESC_KEYCODE = 27;
-var ENTER_KEYCODE = 13;
-
-console.log(document.querySelector('template').content.querySelector('popup__close'));
-
-// Поведение формы и карты при нажатии на пин
-pinMain.addEventListener('mouseup', function () {
-  for (i = 0; i < formFieldset.length; i++) {
+// Функция отображения скрытых полей
+function enableFields() {
+  for (var i = 0; i < formFieldset.length; i++) {
     formFieldset[i].disabled = false;
   }
   map.classList.remove('map--faded');
   form.classList.remove('notice__form--disabled');
-});
+}
 
 // Функция открытия окна
-function openPopup() {
-  mapDisplay.classList.remove('hidden');
+function openPopup(popup) {
+  popup.classList.remove('hidden');
   document.addEventListener('keydown', onPopEscPress);
 }
 
 // Функция закрытия при нажатии на крестик
-function closePopup() {
-  mapDisplay.classList.add('hidden');
+function closePopup(popup) {
+  popup.classList.add('hidden');
   document.removeEventListener('keydown', onPopEscPress);
 }
 
@@ -179,27 +211,3 @@ function onPopEscPress(evt) {
     closePopup();
   }
 }
-
-// Закрытие при клике на крестик
-popupClose.addEventListener('click', function () {
-  closePopup();
-});
-
-// Закрытие при нажатии на ESC
-popupClose.addEventListener('click', function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
-    closePopup();
-  }
-});
-
-// Открытие при клике на метку
-popupOpen.addEventListener('click', function () {
-  openPopup();
-});
-
-// Открытие при нажатии ENTER на меткие
-popupOpen.addEventListener('click', function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
-    openPopup();
-  }
-});
