@@ -47,45 +47,47 @@ pinMain.addEventListener('mouseup', function () {
       }
     }
     pinContainer.appendChild(fragment);
-    enableFields();
+    enableFields(map, form);
   }
 });
 
 // Делегирование
 var mapOne = document.querySelector('.map');
-mapOne.addEventListener('mouseup', function () {
+var mapTwo = document.querySelector('.map__pins');
+
+// Открытие попапа при клике
+mapTwo.addEventListener('mouseup', function () {
   var target = event.target.parentNode;
-  if (target.classList.contains('map__pin') && !target.classList.contains('map__pin--main')) {
-    var popup = mapOne.querySelector('.popup');
-    // Открытие попапа при нажатии на ENTER
-    target.addEventListener('keydown', function (event) {
-      if (event.keyCode === ENTER_KEYCODE) {
-        openPopup(popup);
-      }
-    });
-    // Открытие попапа при клике
-    target.addEventListener('click', function () {
-      openPopup(popup);
-    });
-    var pinSelected = document.querySelector('.map__pin--main');
-    if (!pinSelected.previousSibling) {
-      return;
-    } else {
-      pinSelected.classList.remove('map__pin--main');
-    }
-    target.classList.add('map__pin--main');
+  var popup = mapOne.querySelector('.popup');
+  if (target.tagName === 'BUTTON' && !target.classList.contains('map__pin--main')) {
+    popup.classList.remove('hidden');
+    document.addEventListener('keydown', onPopEscPress);
   }
-  var popupClose = mapOne.querySelector('.popup__close');
-  // Закрытие при клике на крестик
-  popupClose.addEventListener('click', function () {
-    closePopup(popup);
-  });
-  // Закрытие при нажатии на ESC
-  popupClose.addEventListener('click', function (event) {
-    if (event.keyCode === ENTER_KEYCODE) {
-      closePopup(popup);
-    }
-  });
+});
+
+// Закрытие попапа при клике на крестик
+mapOne.addEventListener('mouseup', function () {
+  var popup = mapOne.querySelector('.popup');
+  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close')) {
+    popup.classList.add('hidden');
+  }
+});
+
+// Закрытие попапа при клике на крестик
+mapOne.addEventListener('keydown', function () {
+  var popup = mapOne.querySelector('.popup');
+  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close') && event.keyCode === ENTER_KEYCODE) {
+    popup.classList.add('hidden');
+  }
+});
+
+// Открытие попапа при нажатии на ENTER
+mapTwo.addEventListener('keydown', function () {
+  var popup = mapOne.querySelector('.popup');
+  if (event.target.tagName === 'BUTTON' && !event.target.classList.contains('map__pin--main') && event.keyCode === ENTER_KEYCODE) {
+    popup.classList.remove('hidden');
+    document.addEventListener('keydown', onPopEscPress);
+  }
 });
 
 
@@ -185,7 +187,7 @@ function shuffle(array) {
 }
 
 // Функция отображения скрытых полей
-function enableFields() {
+function enableFields(map, form) {
   for (var i = 0; i < formFieldset.length; i++) {
     formFieldset[i].disabled = false;
   }
@@ -206,8 +208,8 @@ function closePopup(popup) {
 }
 
 // Функция закрытия при нажатии на крестик
-function onPopEscPress(evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
+function onPopEscPress(event) {
+  if (event.keyCode === ESC_KEYCODE) {
     closePopup();
   }
 }
