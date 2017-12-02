@@ -60,6 +60,13 @@ mapTwo.addEventListener('mouseup', function () {
   var target = event.target.parentNode;
   var popup = mapOne.querySelector('.popup');
   if (target.tagName === 'BUTTON' && !target.classList.contains('map__pin--main')) {
+    var pinSelected = document.querySelectorAll('.map__pin--main');
+    if (pinSelected.hasAttribute('style') === true) {
+      for (var i = 0; i < 7; i++) {
+        pinSelected[i].classList.remove('map__pin--main');
+      }
+    }
+    target.classList.add('map__pin--main');
     popup.classList.remove('hidden');
     document.addEventListener('keydown', onPopEscPress);
   }
@@ -86,6 +93,7 @@ mapTwo.addEventListener('keydown', function () {
   var popup = mapOne.querySelector('.popup');
   if (event.target.tagName === 'BUTTON' && !event.target.classList.contains('map__pin--main') && event.keyCode === ENTER_KEYCODE) {
     popup.classList.remove('hidden');
+    event.target.classList.add('map__pin--main');
     document.addEventListener('keydown', onPopEscPress);
   }
 });
