@@ -33,74 +33,59 @@ var fakeOfferData = {
 };
 
 
-// Поведение формы и карты при нажатии на пин
-pinMain.addEventListener('mouseup', function () {
-  // Задаем цикл для функции генерации элемента (метки)
-  if (map.classList.contains('map--faded')) {
-    for (var i = 0; i < 8; i++) {
-      var pinObject = pinCreate(i, fakeOfferData);
-      var pinNode = renderPin(pinObject);
-      fragment.appendChild(pinNode);
-      if (i === 0) {
-        var noticeNode = renderNotice(pinObject);
-        noticeContainer.appendChild(noticeNode);
-      }
-    }
-    pinContainer.appendChild(fragment);
-    enableFields(map, form);
-  }
-});
 
-// Делегирование
-var mapOne = document.querySelector('.map');
-var mapTwo = document.querySelector('.map__pins');
+// Поведение формы и карты при нажатии на пин
+pinMain.addEventListener('mouseup', drawPins);
 
 // Открытие попапа при клике
-mapTwo.addEventListener('mouseup', function () {
+pinContainer.addEventListener('mouseup', function () {
   var target = event.target.parentNode;
-  var popup = mapOne.querySelector('.popup');
-  if (target.tagName === 'BUTTON' && !target.classList.contains('map__pin--main')) {
-    var pinSelected = document.querySelectorAll('.map__pin--main');
-    if (pinSelected.hasAttribute('style') === true) {
-      for (var i = 0; i < 7; i++) {
-        pinSelected[i].classList.remove('map__pin--main');
-      }
-    }
-    target.classList.add('map__pin--main');
-    popup.classList.remove('hidden');
-    document.addEventListener('keydown', onPopEscPress);
+  if (target.tagName !== 'BUTTON' || target.classList.contains('map__pin--main')) {
+    return;
   }
-});
+  changeSelectPinActive(target);
+  removePopup();
+  createPopup(target.datashare);
 
-// Закрытие попапа при клике на крестик
-mapOne.addEventListener('mouseup', function () {
-  var popup = mapOne.querySelector('.popup');
-  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close')) {
-    popup.classList.add('hidden');
-  }
-});
-
-// Закрытие попапа при клике на крестик
-mapOne.addEventListener('keydown', function () {
-  var popup = mapOne.querySelector('.popup');
-  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close') && event.keyCode === ENTER_KEYCODE) {
-    popup.classList.add('hidden');
-  }
+  document.addEventListener('keydown', onPopEscPress);
 });
 
 // Открытие попапа при нажатии на ENTER
-mapTwo.addEventListener('keydown', function () {
-  var popup = mapOne.querySelector('.popup');
-  if (event.target.tagName === 'BUTTON' && !event.target.classList.contains('map__pin--main') && event.keyCode === ENTER_KEYCODE) {
-    popup.classList.remove('hidden');
-    event.target.classList.add('map__pin--main');
-    document.addEventListener('keydown', onPopEscPress);
+pinContainer.addEventListener('keydown', function () {
+  var popup = noticeContainer.querySelector('.popup');
+  var target = event.target.parentNode;
+  if (event.target.tagName || 'BUTTON' && !event.target.classList.contains('map__pin--main') && event.keyCode === ENTER_KEYCODE) {
+    return;
+  }
+  changeSelectPinActive(target);
+  removePopup();
+  createPopup(target.datashare);
+  document.addEventListener('keydown', onPopEscPress);
+});
+
+
+// Закрытие попапа при клике на крестик
+noticeContainer.addEventListener('mouseup', function () {
+  var popup = noticeContainer.querySelector('.popup');
+  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close')) {
+    popup.classList.add('hidden');
+    diactivePin();
+  }
+});
+
+// Закрытие попапа при клике на крестик
+noticeContainer.addEventListener('keydown', function () {
+  var popup = noticeContainer.querySelector('.popup');
+  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close') && event.keyCode === ENTER_KEYCODE) {
+    popup.classList.add('hidden');
+    diactivePin();
   }
 });
 
 
+
 // Функция генерации элемента (метки)
-function pinCreate(id, info) {
+function createNotice(id, info) {
   var sliceFrom = range(0, info.features.length - 2);
   return {
     author: {'avatar': 'img/avatars/user0' + (id + 1) + '.png'},
@@ -131,6 +116,21 @@ function renderPin(list) {
   pinElement.children[0].setAttribute('src', list.author.avatar);
 
   return pinElement;
+}
+
+function drawPins() {
+  // Задаем цикл для функции генерации элемента (метки)
+  if (map.classList.contains('map--faded')) {
+    for (var i = 0; i < 8; i++) {
+      var pinObject = createNotice(i, fakeOfferData);
+      var pinNode = renderPin(pinObject);
+      pinNode.datashare = pinObject;
+      fragment.appendChild(pinNode);
+    }
+    pinContainer.appendChild(fragment);
+    enableFields(map, form);
+    pinMain.removeEventListener('mouseup', drawPins);
+  }
 }
 
 // Функция определения типа жилья
@@ -203,21 +203,44 @@ function enableFields(map, form) {
   form.classList.remove('notice__form--disabled');
 }
 
-// Функция открытия окна
-function openPopup(popup) {
-  popup.classList.remove('hidden');
-  document.addEventListener('keydown', onPopEscPress);
+// Функция смены класса активного пина
+function changeSelectPinActive(targetNode) {
+  var activePinNode = document.querySelector('.map__pin--active');
+  if (activePinNode) {
+    activePinNode.classList.toggle('map__pin--active');
+  }
+  targetNode.classList.add('map__pin--active');
 }
 
-// Функция закрытия при нажатии на крестик
-function closePopup(popup) {
-  popup.classList.add('hidden');
-  document.removeEventListener('keydown', onPopEscPress);
+// Функция снятия класса с неактивного пина
+function diactivePin() {
+  var activePinNode = document.querySelector('.map__pin--active');
+  if (activePinNode) {
+    activePinNode.classList.remove('map__pin--active');
+  }
 }
 
-// Функция закрытия при нажатии на крестик
+// Функция удаления попапа
+function removePopup() {
+  var popup = noticeContainer.querySelector('.popup');
+  if (popup) {
+    popup.remove();
+  }
+}
+
+// Функция рендера попапа
+function createPopup(data) {
+  var noticeNode = renderNotice(data);
+  noticeNode.classList.remove('hidden');
+  noticeContainer.appendChild(noticeNode);
+}
+
+// Функция удаления попапа при нажатии на крестик
 function onPopEscPress(event) {
-  if (event.keyCode === ESC_KEYCODE) {
-    closePopup();
+  var popup = noticeContainer.querySelector('.popup');
+  if (popup && event.keyCode === ESC_KEYCODE) {
+    removePopup();
+    diactivePin();
+    document.removeEventListener('keydown', onPopEscPress);
   }
 }
