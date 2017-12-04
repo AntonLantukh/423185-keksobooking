@@ -1,7 +1,6 @@
 'use strict';
 
 // Находим шаблон и контейнер для отрисовки метки
-var mapDisplay = document.querySelector('.map--faded');
 var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var pinContainer = document.querySelector('.map__pins');
 var fragment = document.createDocumentFragment();
@@ -9,6 +8,13 @@ var fragment = document.createDocumentFragment();
 // Находим шаблон и контейнер для отрисовки Объявления
 var noticeTemplate = document.querySelector('template').content.querySelector('.map__card');
 var noticeContainer = document.querySelector('.map');
+
+// Элементы пинов и формы
+var pinMain = document.querySelector('.map__pin--main');
+var map = document.querySelector('.map--faded');
+var form = document.querySelector('.notice__form--disabled');
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 
 // Объявляем переменные
 var fakeOfferData = {
@@ -25,27 +31,56 @@ var fakeOfferData = {
   'photos': []
 };
 
-// Убираем класс .map--faded
-mapDisplay.classList.remove('hidden');
 
-// Задаем цикл для функции генерации элемента (метки)
-for (var i = 0; i < 8; i++) {
-  var pinObject = pinCreate(i, fakeOfferData);
-  var pinNode = renderPin(pinObject);
+// Поведение формы и карты при нажатии на пин
+pinMain.addEventListener('mouseup', drawPins);
 
-  fragment.appendChild(pinNode);
-
-  // Блок с данными о метке рендерим только для первого оффера
-  if (i === 0) {
-    var noticeNode = renderNotice(pinObject);
-    noticeContainer.appendChild(noticeNode);
+// Открытие попапа при клике
+pinContainer.addEventListener('click', function () {
+  var target = event.target.parentNode;
+  if (target.tagName !== 'BUTTON' || target.classList.contains('map__pin--main')) {
+    return;
   }
-}
+  changeSelectPinActive(target);
+  removePopup();
+  createPopup(target.datashare);
 
-pinContainer.appendChild(fragment);
+  document.addEventListener('keydown', onPopEscPress);
+});
+
+// Открытие попапа при нажатии на ENTER
+pinContainer.addEventListener('keydown', function () {
+  if (event.target.tagName !== 'BUTTON' || event.target.classList.contains('map__pin--main') || event.keyCode !== ENTER_KEYCODE) {
+    return;
+  }
+
+  changeSelectPinActive(event.target);
+  removePopup();
+  createPopup(event.target.datashare);
+
+  document.addEventListener('keydown', onPopEscPress);
+});
+
+
+// Закрытие попапа при клике на крестик
+noticeContainer.addEventListener('click', function () {
+  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close')) {
+    removePopup();
+    diactivatePin();
+  }
+});
+
+// Закрытие попапа при нажатии на ENTER
+noticeContainer.addEventListener('keydown', function () {
+  if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close') && event.keyCode === ENTER_KEYCODE) {
+    removePopup();
+    diactivatePin();
+  }
+});
+
 
 // Функция генерации элемента (метки)
-function pinCreate(id, info) {
+function createNotice(id, info) {
   var sliceFrom = range(0, info.features.length - 2);
   return {
     author: {'avatar': 'img/avatars/user0' + (id + 1) + '.png'},
@@ -76,6 +111,24 @@ function renderPin(list) {
   pinElement.children[0].setAttribute('src', list.author.avatar);
 
   return pinElement;
+}
+
+function drawPins() {
+  // Задаем цикл для функции генерации элемента (метки)
+  if (map.classList.contains('map--faded')) {
+    for (var i = 0; i < 8; i++) {
+      var pinObject = createNotice(i, fakeOfferData);
+      var pinNode = renderPin(pinObject);
+      pinNode.datashare = pinObject;
+      fragment.appendChild(pinNode);
+    }
+    pinContainer.appendChild(fragment);
+
+    var formFieldset = document.querySelectorAll('.form__element');
+    enableFields(formFieldset);
+
+    pinMain.removeEventListener('mouseup', drawPins);
+  }
 }
 
 // Функция определения типа жилья
@@ -137,4 +190,54 @@ function shuffle(array) {
   }
 
   return array;
+}
+
+// Функция отображения скрытых полей
+function enableFields(formFieldset) {
+  for (var i = 0; i < formFieldset.length; i++) {
+    formFieldset[i].disabled = false;
+  }
+  map.classList.remove('map--faded');
+  form.classList.remove('notice__form--disabled');
+}
+
+// Функция смены класса активного пина
+function changeSelectPinActive(targetNode) {
+  var activePinNode = document.querySelector('.map__pin--active');
+  if (activePinNode) {
+    activePinNode.classList.toggle('map__pin--active');
+  }
+  targetNode.classList.add('map__pin--active');
+}
+
+// Функция снятия класса с неактивного пина
+function diactivatePin() {
+  var activePinNode = document.querySelector('.map__pin--active');
+  if (activePinNode) {
+    activePinNode.classList.remove('map__pin--active');
+  }
+}
+
+// Функция удаления попапа
+function removePopup() {
+  var popup = noticeContainer.querySelector('.popup');
+  if (popup) {
+    popup.remove();
+  }
+}
+
+// Функция рендера попапа
+function createPopup(data) {
+  var noticeNode = renderNotice(data);
+  noticeContainer.appendChild(noticeNode);
+}
+
+// Функция удаления попапа при нажатии на крестик
+function onPopEscPress(event) {
+  var popup = noticeContainer.querySelector('.popup');
+  if (popup && event.keyCode === ESC_KEYCODE) {
+    removePopup();
+    diactivatePin();
+    document.removeEventListener('keydown', onPopEscPress);
+  }
 }
