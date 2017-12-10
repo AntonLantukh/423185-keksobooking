@@ -5,12 +5,22 @@
   // Перетаскивание пина
   var dialogHandle = document.querySelector('.map__pin--main');
   var address = document.querySelector('#address');
+  var body = document.querySelector('body');
+
+  var limitYTop = 100;
+  var limitYBottom = 500;
+  var limitXLeft = body.offsetLeft;
+  var limitXRight = body.offsetLeft + body.offsetWidth;
+
+  var mainPinAfter = 22;
+  var mainPinHeight = dialogHandle.offsetHeight / 2 + mainPinAfter;
 
   dialogHandle.addEventListener('mousedown', function (event) {
     event.preventDefault();
+
     var startCoords = {
       x: event.clientX,
-      y: event.clientY
+      y: event.clientY,
     };
     var onMouseMove = function (moveEvent) {
       moveEvent.preventDefault();
@@ -23,25 +33,32 @@
         y: moveEvent.clientY
       };
 
-      // Задаем проверку координаты Y для выставления лимитов
-      var limitY = dialogHandle.offsetTop - shift.y;
-      var pinShift = 0;
+      // Высчитываем рамки для передвижения пина
+      var pinPlaceY = dialogHandle.offsetTop - shift.y;
+      var pinPlaceX = dialogHandle.offsetLeft - shift.x;
 
-      if (limitY > 446) {
-        limitY = 446;
-        pinShift = 54;
-      } else if (limitY < 54) {
-        limitY = 46;
-        pinShift = 54;
+      if (pinPlaceY > limitYBottom) {
+        pinPlaceY = limitYBottom;
+      } else if (pinPlaceY < limitYTop) {
+        pinPlaceY = limitYTop;
       } else {
-        limitY = dialogHandle.offsetTop - shift.y;
+        pinPlaceY = dialogHandle.offsetTop - shift.y;
       }
 
-      dialogHandle.style.top = limitY + 'px';
-      dialogHandle.style.left = (dialogHandle.offsetLeft - shift.x) + 'px';
+      if (pinPlaceX > limitXRight) {
+        pinPlaceX = limitXRight;
+      } else if (pinPlaceX < limitXLeft) {
+        pinPlaceX = limitXLeft;
+      } else {
+        pinPlaceX = dialogHandle.offsetLeft - shift.x;
+      }
+
+      // Отрисовывем движение на карте
+      dialogHandle.style.top = pinPlaceY + 'px';
+      dialogHandle.style.left = pinPlaceX + 'px';
 
       // Выводим текущие координаты в адресное строку
-      address.value = 'x: ' + (dialogHandle.offsetLeft - shift.x) + ', y: ' + (limitY + pinShift);
+      address.value = 'x: ' + (pinPlaceX) + ', y: ' + (pinPlaceY + mainPinHeight);
     };
     var onMouseUp = function (upEvent) {
       upEvent.preventDefault();
