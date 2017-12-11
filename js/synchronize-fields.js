@@ -2,9 +2,9 @@
 
 (function () {
 
-  window.synchronizeFields = function (firstElement, secondElement, firstArray, secondArray, syncValue) {
+  window.synchronizeFields = function (firstElement, secondElement, firstArray, secondArray, syncValueCallback) {
     var indexSelected = firstArray.indexOf(firstElement.value);
     var valueToTransfer = secondArray[indexSelected];
-    syncValue(secondElement, valueToTransfer);
+    syncValueCallback(secondElement, valueToTransfer);
   };
 })();

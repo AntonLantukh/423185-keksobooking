@@ -4,6 +4,8 @@
 
   // Переменные формы
   var form = document.querySelector('.notice__form--disabled');
+  var formData = document.querySelector('.notice__form');
+  var formReset = document.querySelector('.form__reset');
   var map = document.querySelector('.map--faded');
 
   var checkinTime = document.querySelector('#timein');
@@ -73,9 +75,29 @@
     window.synchronizeFields(roomNumber, capacity, rooms, guests, syncValueAsync);
   }
 
+  // Функция обработки POST
+  function submitProcess() {
+    window.save(new FormData(formData), onSuccess, onError);
+    event.preventDefault();
+    formReset.click();
+  }
+
+
   // Вызываем обработчики
   checkinTime.addEventListener('change', checkInSync);
   checkoutTime.addEventListener('change', checkOutSync);
   houseType.addEventListener('change', houseSync);
   roomNumber.addEventListener('change', roomSync);
+  form.addEventListener('submit', submitProcess);
+
+  // Определяем коллбэки
+  var onError = function (message) {
+    console.error(message);
+  };
+
+  // Определяем коллбэки
+  var onSuccess = function (data) {
+    var dataSet = data;
+    console.log(data);
+  };
 })();
