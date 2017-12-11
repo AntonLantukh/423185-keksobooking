@@ -7,12 +7,6 @@
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
 
-  // Функция рендера попапа
-  function createPopup(data) {
-    var noticeNode = window.data.renderNotice(data);
-    noticeContainer.appendChild(noticeNode);
-  }
-
   // Функция удаления попапа
   function removePopup(popup) {
     if (popup) {
@@ -42,7 +36,7 @@
     }
     window.pin.changeSelectPinActive(target);
     removePopup(popup);
-    createPopup(target.datashare);
+    window.show.createPopup(event.target.parentNode.datashare);
     var popup = noticeContainer.querySelector('.popup');
 
     document.addEventListener('keydown', onPopEscPress);
@@ -56,7 +50,7 @@
 
     window.pin.changeSelectPinActive(event.target);
     removePopup(popup);
-    createPopup(event.target.datashare);
+    window.show.createPopup(event.target.datashare);
     var popup = noticeContainer.querySelector('.popup');
 
     document.addEventListener('keydown', onPopEscPress);
