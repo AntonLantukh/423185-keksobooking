@@ -32,10 +32,14 @@
     }
   };
 
-  window.load(onSuccess, onError);
-
   // Определяем коллбэки
-  var onError = function (message) {
-    console.error(message);
+  var onErrorCallback = function (errorMessage) {
+    var errorNode = document.createElement('div');
+    errorNode.style = 'z-index: 100; top: 500px; position: absolute; margin: 0 auto; width: 1200px; height: 40px; text-align: center;  background-color: rgb(253, 94, 83); font-size: 35px; color: white;';
+    errorNode.textContent = errorMessage + '. Пожалуйста, перезагрузите страницу.';
+    document.body.insertAdjacentElement('afterbegin', errorNode);
   };
+
+  window.load(onSuccess, onErrorCallback);
+
 })();

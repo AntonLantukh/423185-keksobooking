@@ -2,46 +2,30 @@
 
 (function () {
 
-  window.load = function (onSuccess, onError) {
+  window.load = function (onSuccessCallback, onErrorCallback) {
 
     // Определяем основные данные
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 1000;
+    xhr.timeout = 5000;
 
     // Опредялем событие окончания загрузки ресурса и вешаем ошибки
     xhr.addEventListener('load', function () {
-      var error;
-      switch (xhr.status) {
-        case 200:
-          onSuccess(xhr.response);
-          break;
-        case 400:
-          error = 'Неверный запрос';
-          break;
-        case 401:
-          error = 'Пользователь не авторизован';
-          break;
-        case 404:
-          error = 'Ничего не найдено';
-          break;
-        default:
-          error = 'Неизвестный статус: ' + xhr.status + ' ' + xhr.statusText;
-          break;
-      }
-      if (error) {
-        onError(error);
+      if (xhr.status === 200) {
+        onSuccessCallback(xhr.response);
+      } else {
+        onErrorCallback('Произошла ошибка ' + xhr.status + '' + xhr.statusText);
       }
     });
 
     // Событие ошибки начала загрузки
     xhr.addEventListener('error', function () {
-      onError('Произошла ошибка соединения');
+      onErrorCallback('Произошла ошибка соединения');
     });
 
     // Событие превышения таймауту
     xhr.addEventListener('timeout', function () {
-      onError('Превышен интервал ожидания');
+      onErrorCallback('Превышен интервал ожидания');
     });
 
     // Устанавливаем соединение и отсылаем запрос
@@ -49,7 +33,7 @@
     xhr.send();
   };
 
-  window.save = function (data, onSuccess, onError) {
+  window.save = function (data, onSuccessCallback, onErrorCallback) {
 
     // Определяем основные данные
     var xhr = new XMLHttpRequest();
@@ -58,37 +42,21 @@
 
     // Опредялем событие окончания загрузки ресурса и вешаем ошибки
     xhr.addEventListener('load', function () {
-      var error;
-      switch (xhr.status) {
-        case 200:
-          onSuccess(xhr.response);
-          break;
-        case 400:
-          error = 'Неверный запрос';
-          break;
-        case 401:
-          error = 'Пользователь не авторизован';
-          break;
-        case 404:
-          error = 'Ничего не найдено';
-          break;
-        default:
-          error = 'Неизвестный статус: ' + xhr.status + ' ' + xhr.statusText;
-          break;
-      }
-      if (error) {
-        onError(error);
+      if (xhr.status === 200) {
+        onSuccessCallback(xhr.response);
+      } else {
+        onErrorCallback('Произошла ошибка ' + xhr.status + ' ' + xhr.statusText);
       }
     });
 
     // Событие ошибки начала загрузки
     xhr.addEventListener('error', function () {
-      onError('Произошла ошибка соединения');
+      onErrorCallback('Произошла ошибка соединения');
     });
 
     // Событие превышения таймауту
     xhr.addEventListener('timeout', function () {
-      onError('Превышен интервал ожидания');
+      onErrorCallback('Превышен интервал ожидания');
     });
 
     // Устанавливаем соединение и отсылаем запрос
