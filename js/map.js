@@ -40,6 +40,6 @@
     document.body.insertAdjacentElement('afterbegin', errorNode);
   };
 
-  window.load(onSuccess, onErrorCallback);
+  window.backend.load(onSuccess, onErrorCallback);
 
 })();
