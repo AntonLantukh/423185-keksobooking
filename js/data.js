@@ -2,19 +2,6 @@
 
 (function () {
 
-  // Функция определения типа жилья
-  function defineFlatType(list) {
-    var type;
-    if (list.offer.type === 'flat') {
-      type = 'Квартира';
-    } else if (list.offer.type === 'bungalo') {
-      type = 'Бунгало';
-    } else if (list.offer.type === 'house') {
-      type = 'Дом';
-    }
-    return type;
-  }
-
   window.data = {
 
     // Функция генерации объявления
@@ -51,6 +38,19 @@
     }
   };
 
+  // Функция определения типа жилья
+  function defineFlatType(list) {
+    var type;
+    if (list.offer.type === 'flat') {
+      type = 'Квартира';
+    } else if (list.offer.type === 'bungalo') {
+      type = 'Бунгало';
+    } else if (list.offer.type === 'house') {
+      type = 'Дом';
+    }
+    return type;
+  }
+
   // Функция для создания списка удобств в рамках тега li
   function createFeatures(id, list) {
     return '<li class="feature feature--' + list.offer.features[id] + '"></li>';
@@ -58,7 +58,7 @@
 
   // Функция для создания списка фотографий в рамках тега li
   function createPhotos(id, list) {
-    return '<li><img src=' + list.offer.photos[id] + '></li>';
+    return '<li><img src=' + list.offer.photos[id] + ' width = "45" height="45"></li>';
   }
 
 })();
