@@ -10,4 +10,5 @@
       noticeContainer.appendChild(noticeNode);
     }
   };
+  console.log(window.noticeArray);
 })();
