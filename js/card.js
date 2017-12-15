@@ -30,6 +30,7 @@
 
   // Открытие попапа при клике
   pinContainer.addEventListener('click', function (event) {
+    var popup = noticeContainer.querySelector('.popup');
     var target = event.target.parentNode;
     if (target.tagName !== 'BUTTON' || target.classList.contains('map__pin--main')) {
       return;
@@ -37,13 +38,13 @@
     window.pin.changeSelectPinActive(target);
     removePopup(popup);
     window.show.createPopup(event.target.parentNode.datashare);
-    var popup = noticeContainer.querySelector('.popup');
 
     document.addEventListener('keydown', onPopEscPress);
   });
 
   // Открытие попапа при нажатии на ENTER
   pinContainer.addEventListener('keydown', function (event) {
+    var popup = noticeContainer.querySelector('.popup');
     if (event.target.tagName !== 'BUTTON' || event.target.classList.contains('map__pin--main') || event.keyCode !== ENTER_KEYCODE) {
       return;
     }
@@ -51,7 +52,6 @@
     window.pin.changeSelectPinActive(event.target);
     removePopup(popup);
     window.show.createPopup(event.target.datashare);
-    var popup = noticeContainer.querySelector('.popup');
 
     document.addEventListener('keydown', onPopEscPress);
   });

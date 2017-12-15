@@ -4,6 +4,8 @@
 
   // Переменные формы
   var form = document.querySelector('.notice__form--disabled');
+  var formData = document.querySelector('.notice__form');
+  var formReset = document.querySelector('.form__reset');
   var map = document.querySelector('.map--faded');
 
   var checkinTime = document.querySelector('#timein');
@@ -78,4 +80,19 @@
   checkoutTime.addEventListener('change', checkOutSync);
   houseType.addEventListener('change', houseSync);
   roomNumber.addEventListener('change', roomSync);
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    window.backend.save(new FormData(formData), function () {
+      formReset.click();
+    }, onErrorCallback);
+  });
+
+  // Коллбэк для формы в случае ошибки
+  var onErrorCallback = function (errorMessage) {
+    var errorNode = document.createElement('div');
+    errorNode.style = 'z-index: 100; top: 1600px; position: absolute; margin: 0 auto; width: 1200px; height: 40px; text-align: center;  background-color: rgb(253, 94, 83); font-size: 35px; color: white;';
+    errorNode.textContent = errorMessage + '. Пожалуйста, перезагрузите страницу.';
+    document.body.insertAdjacentElement('afterbegin', errorNode);
+  };
 })();
