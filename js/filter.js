@@ -6,7 +6,6 @@
   var pinContainer = document.querySelector('.map__pins');
   var pinSelectors = Array.from(pinFilter.querySelectorAll('select'));
   var pinInputs = Array.from(pinFilter.querySelectorAll('input'));
-  var filterNodes = pinSelectors.concat(pinInputs);
   var filterObject = {};
   var features = [];
 
@@ -21,58 +20,97 @@
       }
     });
     filterObject.features = features;
-    debugger;
-    filter();
+    filterPins();
   });
 
   // Функця фильтрации пинов
-  function filter() {
+  function filterPins() {
     var pinNodes = Array.from(pinContainer.children).slice(2);
-    var filterPins = pinNodes.filter(function (pinNode) {
+    debugger;
+    pinNodes.filter(function (pinNode) {
       var isPassed = true;
-      for (var key in pinNode.datashare.offer) {
+      var offer = pinNode.datashare.offer;
+      for (var key in offer) {
+        console.log(offer);
         var isPassedKey;
         console.log(key);
-        var value = pinNode[key];
-        if (value === 'any' || (key === 'features' && filterObject[key].length === 0)) {
+        var value = offer[key];
+        if (filterObject[key] === 'any') {
           continue;
-        }
-        if (key === 'price') {
-          isPassedKey = priceFilter(filter[key], pinOffer[key])
+        } else if (key === 'type') {
+          isPassedKey = typeFilter(value);
+        } else if (key === 'rooms') {
+          isPassedKey = roomsFilter(value);
+        } else if (key === 'price') {
+          isPassedKey = priceFilter(value);
+        } else if (key === 'guests') {
+          isPassedKey = guestsFilter(value);
         } else if (key === 'features') {
-          isPassedKey = featuresFilter(filter[key], pinOffer[key])
-        } else {
-          isPassedKey = pinNode.datashared.offer[key] === value;
+          isPassedKey = featuresFilter(offer);
         }
         if (isPassedKey === false) {
           isPassed = false;
           break;
         }
       }
-      return isPassed;
+      if (isPassed === false) {
+        pinNode.classList.add('hidden');
+      } else if (isPassed === true && pinNode.hidden === true) {
+        pinNode.classList.remove('hidden');
+      }
     });
   }
 
+  // Проверка совпадения типа жилья
+  function typeFilter(value) {
+    if (filterObject.type === value) {
 
-  pinNodes.forEach(function (pinNode) {
-    pinNode.hidden = filterPins.includes(pinNode);
-  });
-
-  function priceFilter (typePrice, offerPrice) {
-    if (typePrice === 'middle') {
-      return 10000 >= offerPrice && offerPrice <= 50000
-    } else if (typePrice === 'low') {
-      return offerPrice <= 10000
-    } else if (typePrice === 'high') {
-      return 50000 >= offerPrice
+      return true;
     }
-    return true
+    return false;
   }
 
-  function featuresFilter (filterFeatures, offerFeatures) {
-    var resultFeatures = filterFeatures.filter(function (filterFeature) {
-      return offerFeatures.includes(filterFeature)
-    })
-    return resultFeatures.length === filterFeatures.length
+  // Проверка совпадения кол-ва комнат
+  function roomsFilter(value) {
+    if (filterObject.rooms === value) {
+
+      return true;
+    }
+    return false;
   }
+  // Проверка совпадения кол-ва гостией
+  function guestsFilter(value) {
+    if (filterObject.guests === value) {
+
+      return true;
+    }
+    return false;
+  }
+
+  // Проервка совпадения цены
+  function priceFilter(value) {
+    if (filterObject.price === 'middle') {
+      return value <= 10000 && value <= 50000;
+    } else if (filterObject.price === 'low') {
+      return value <= 10000;
+    } else if (filterObject.price === 'high') {
+      return value <= 50000;
+    }
+    return false;
+  }
+
+  // Проверка совпадния удобств
+  function featuresFilter(offer) {
+    filterObject[features].filter(function (filterFeature) {
+      if (filterFeature.includes(offer)) {
+        return true;
+      }
+    });
+    return false;
+  }
+
+  // Отображение пинов
+  //  pinNodes.forEach(function (pinNode) {
+  //    pinNode.hidden = filterPins.includes(pinNode);
+  //  });
 })();
