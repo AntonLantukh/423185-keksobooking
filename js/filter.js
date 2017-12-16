@@ -7,10 +7,10 @@
   var pinSelectors = Array.from(pinFilter.querySelectorAll('select'));
   var pinInputs = Array.from(pinFilter.querySelectorAll('input'));
   var filterObject = {};
-  var features = [];
 
-  // Событие клика на фильтр, создание динамиского объекта с фильтрами
+  // Событие клика на фильтр, создание динамического объекта с фильтрами
   pinFilter.addEventListener('change', function () {
+    var features = [];
     pinSelectors.forEach(function (array) {
       filterObject[array.name.substr(8)] = array.value;
     });
@@ -26,14 +26,11 @@
   // Функця фильтрации пинов
   function filterPins() {
     var pinNodes = Array.from(pinContainer.children).slice(2);
-    debugger;
     pinNodes.filter(function (pinNode) {
       var isPassed = true;
       var offer = pinNode.datashare.offer;
       for (var key in offer) {
-        console.log(offer);
         var isPassedKey;
-        console.log(key);
         var value = offer[key];
         if (filterObject[key] === 'any') {
           continue;
@@ -41,10 +38,10 @@
           isPassedKey = typeFilter(value);
         } else if (key === 'rooms') {
           isPassedKey = roomsFilter(value);
-        } else if (key === 'price') {
-          isPassedKey = priceFilter(value);
         } else if (key === 'guests') {
           isPassedKey = guestsFilter(value);
+        } else if (key === 'price') {
+          isPassedKey = priceFilter(value);
         } else if (key === 'features') {
           isPassedKey = featuresFilter(value);
         }
@@ -90,11 +87,11 @@
   // Проервка совпадения цены
   function priceFilter(value) {
     if (filterObject.price === 'middle') {
-      return value <= 10000 && value <= 50000;
+      return value >= 10000 && value <= 50000;
     } else if (filterObject.price === 'low') {
-      return value <= 10000;
+      return value < 10000;
     } else if (filterObject.price === 'high') {
-      return value <= 50000;
+      return value > 50000;
     }
     return false;
   }
@@ -104,16 +101,10 @@
     if (filterObject.features.length === 0) {
       return true;
     }
-    filterObject.features.filter(function (filterFeature) {
-      if (filterFeature.includes(value)) {
-        return true;
-      }
+    var featureIn = true;
+    featureIn = filterObject.features.every(function (feature) {
+      return value.includes(feature);
     });
-    return false;
+    return featureIn;
   }
-
-  // Отображение пинов
-  //  pinNodes.forEach(function (pinNode) {
-  //    pinNode.hidden = filterPins.includes(pinNode);
-  //  });
 })();
