@@ -8,6 +8,7 @@
   var pinInputs = Array.from(pinFilter.querySelectorAll('input'));
   var filterObject = {};
 
+
   // Событие клика на фильтр, создание динамического объекта с фильтрами
   pinFilter.addEventListener('change', function () {
     var features = [];
@@ -23,6 +24,7 @@
     filterPins();
   });
 
+
   // Функця фильтрации пинов
   function filterPins() {
     var pinNodes = Array.from(pinContainer.children).slice(2);
@@ -30,58 +32,34 @@
       var isPassed = true;
       var offer = pinNode.datashare.offer;
       for (var key in offer) {
-        var isPassedKey;
-        var value = offer[key];
-        if (filterObject[key] === 'any') {
-          continue;
-        } else if (key === 'type') {
-          isPassedKey = typeFilter(value);
-        } else if (key === 'rooms') {
-          isPassedKey = roomsFilter(value);
-        } else if (key === 'guests') {
-          isPassedKey = guestsFilter(value);
-        } else if (key === 'price') {
-          isPassedKey = priceFilter(value);
-        } else if (key === 'features') {
-          isPassedKey = featuresFilter(value);
+        if (offer.hasOwnProperty(key)) {
+          var isPassedKey;
+          var value = offer[key];
+          if (filterObject[key] === 'any') {
+            continue;
+          } else if (key === 'type') {
+            isPassedKey = filterObject.type === value;
+          } else if (key === 'rooms') {
+            isPassedKey = filterObject.rooms === String(value);
+          } else if (key === 'guests') {
+            isPassedKey = filterObject.guests === String(value);
+          } else if (key === 'price') {
+            isPassedKey = priceFilter(value);
+          } else if (key === 'features') {
+            isPassedKey = featuresFilter(value);
+          }
+          if (isPassedKey === false) {
+            isPassed = false;
+            break;
+          }
         }
-        if (isPassedKey === false) {
-          isPassed = false;
-          break;
+        if (isPassed === false) {
+          pinNode.classList.add('hidden');
+        } else if (isPassed === true && pinNode.classList.contains('hidden') === true) {
+          pinNode.classList.remove('hidden');
         }
-      }
-      if (isPassed === false) {
-        pinNode.classList.add('hidden');
-      } else if (isPassed === true && pinNode.classList.contains('hidden') === true) {
-        pinNode.classList.remove('hidden');
       }
     });
-  }
-
-  // Проверка совпадения типа жилья
-  function typeFilter(value) {
-    if (filterObject.type === value) {
-
-      return true;
-    }
-    return false;
-  }
-
-  // Проверка совпадения кол-ва комнат
-  function roomsFilter(value) {
-    if (filterObject.rooms === String(value)) {
-
-      return true;
-    }
-    return false;
-  }
-  // Проверка совпадения кол-ва гостией
-  function guestsFilter(value) {
-    if (filterObject.guests === String(value)) {
-
-      return true;
-    }
-    return false;
   }
 
   // Проервка совпадения цены
