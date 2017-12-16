@@ -2,6 +2,7 @@
 
 (function () {
 
+  var noticeContainer = document.querySelector('.map');
   var pinFilter = document.querySelector('.map__filters');
   var pinContainer = document.querySelector('.map__pins');
   var pinSelectors = Array.from(pinFilter.querySelectorAll('select'));
@@ -53,11 +54,14 @@
             break;
           }
         }
-        if (isPassed === false) {
-          pinNode.classList.add('hidden');
-        } else if (isPassed === true && pinNode.classList.contains('hidden') === true) {
-          pinNode.classList.remove('hidden');
-        }
+      }
+      if (isPassed === false) {
+        pinNode.classList.add('hidden');
+        var popup = noticeContainer.querySelector('.popup');
+        window.pin.diactivatePin();
+        window.card.removePopup(popup);
+      } else if (isPassed === true && pinNode.classList.contains('hidden') === true) {
+        pinNode.classList.remove('hidden');
       }
     });
   }
