@@ -46,7 +46,7 @@
         } else if (key === 'guests') {
           isPassedKey = guestsFilter(value);
         } else if (key === 'features') {
-          isPassedKey = featuresFilter(offer);
+          isPassedKey = featuresFilter(value);
         }
         if (isPassedKey === false) {
           isPassed = false;
@@ -55,7 +55,7 @@
       }
       if (isPassed === false) {
         pinNode.classList.add('hidden');
-      } else if (isPassed === true && pinNode.hidden === true) {
+      } else if (isPassed === true && pinNode.classList.contains('hidden') === true) {
         pinNode.classList.remove('hidden');
       }
     });
@@ -72,7 +72,7 @@
 
   // Проверка совпадения кол-ва комнат
   function roomsFilter(value) {
-    if (filterObject.rooms === value) {
+    if (filterObject.rooms === String(value)) {
 
       return true;
     }
@@ -80,7 +80,7 @@
   }
   // Проверка совпадения кол-ва гостией
   function guestsFilter(value) {
-    if (filterObject.guests === value) {
+    if (filterObject.guests === String(value)) {
 
       return true;
     }
@@ -100,9 +100,12 @@
   }
 
   // Проверка совпадния удобств
-  function featuresFilter(offer) {
-    filterObject[features].filter(function (filterFeature) {
-      if (filterFeature.includes(offer)) {
+  function featuresFilter(value) {
+    if (filterObject.features.length === 0) {
+      return true;
+    }
+    filterObject.features.filter(function (filterFeature) {
+      if (filterFeature.includes(value)) {
         return true;
       }
     });
