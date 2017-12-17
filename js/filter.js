@@ -8,7 +8,7 @@
   var pinSelectors = Array.from(pinFilter.querySelectorAll('select'));
   var pinInputs = Array.from(pinFilter.querySelectorAll('input'));
   var filterObject = {};
-
+  var prevTimer;
 
   // Событие клика на фильтр, создание динамического объекта с фильтрами
   pinFilter.addEventListener('change', function () {
@@ -22,7 +22,10 @@
       }
     });
     filterObject.features = features;
-    filterPins();
+    window.clearTimeout(prevTimer);
+    prevTimer = window.setTimeout(function () {
+      filterPins();
+    }, 500);
   });
 
 
