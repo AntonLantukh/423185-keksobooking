@@ -25,7 +25,7 @@
         fragment.appendChild(pinNode);
       }
       pinContainer.appendChild(fragment);
-      var formFieldset = document.querySelectorAll('.form__element');
+      var formFieldset = document.querySelectorAll('fieldset');
       window.form.enableFields(formFieldset);
 
       pinMain.removeEventListener('mouseup', renderMap);

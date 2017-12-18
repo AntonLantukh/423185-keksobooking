@@ -23,6 +23,7 @@
   var capacity = document.querySelector('#capacity');
 
   var dropAvatar = document.querySelector('.drop-zone');
+  var inputAvatar = document.querySelector('#avatar');
   var dropImage = document.querySelector('.notice__preview').children[0];
 
   // Массивы данных формы
@@ -41,32 +42,27 @@
   houseType.addEventListener('change', houseSync);
   roomNumber.addEventListener('change', roomSync);
 
+  // Обработчики перетаскивания
   dropAvatar.addEventListener('dragover', function (event) {
+    event.preventDefault();
+    return false;
   });
 
-  dropAvatar.addEventListener('drop', function (event) {
-  //  event.preventDefault();
-    console.log(event);
-    event.target.style.backgroundColor = '';
-    dropImage.setAttribute('src', event.dataTransfer.files[0])
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/js/');
-    xhr.send(event.dataTransfer.files[0]);
-  });
-
+  // Событие конца перетаскивания
   dropAvatar.addEventListener('dragenter', function (event) {
     event.target.style.backgroundColor = 'white';
+    event.preventDefault();
   });
 
+  // Событие начала перетаскивания
   dropAvatar.addEventListener('dragleave', function (event) {
     event.target.style.backgroundColor = '';
+    event.preventDefault();
   });
 
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    window.backend.save(new FormData(formData), function () {
-      formToReset();
-    }, onErrorCallback);
+  // Событие дроп на указанной зоне
+  dropAvatar.addEventListener('drop', function () {
+    renderDrop();
   });
 
 
@@ -80,6 +76,30 @@
       form.classList.remove('notice__form--disabled');
     }
   };
+
+
+  // Обработчик перетаскивания
+  function renderDrop() {
+    event.preventDefault();
+    event.target.style.backgroundColor = '';
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+      var reader = new FileReader();
+    }
+    reader.addEventListener('load', function (evt) {
+      dropImage.setAttribute('src', evt.target.result);
+    });
+    reader.readAsDataURL(event.dataTransfer.files[0]);
+  }
+
+  // Обработчик формы для отсылки на сервер
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var data = new FormData(formData);
+    data.append('avatar', dropImage.src);
+    window.backend.save(data, function () {
+      formToReset();
+    }, onErrorCallback);
+  });
 
   // Колбэк под двустороннюю синхронизацию
   function syncValue(secondElement, value) {
