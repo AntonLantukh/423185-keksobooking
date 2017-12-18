@@ -12,8 +12,7 @@
   // Открытие попапа при клике
   pinContainer.addEventListener('click', function (event) {
     var popup = noticeContainer.querySelector('.popup');
-    // var target = event.target.parentNode;
-    if (event.target.classList.contains('map__pin--main') || event.target.parentElement.classList.contains('map__pin--main') || event.target.parentElement.tagName === 'DIV') {
+    if (event.target.tagName === 'textPath' || event.target.classList.contains('map__pin--main') || event.target.parentElement.classList.contains('map__pin--main') || event.target.parentElement.tagName === 'DIV') {
       return;
     }
     var dataForFunctions = event.target.tagName === 'IMG' ? event.target.parentElement : event.target;

@@ -129,6 +129,7 @@
     event.preventDefault();
     var data = new FormData(formData);
     data.append('avatar', window.formFragnDrop.avatar);
+    data.append('photos', window.formFragnDrop.photos);
     window.backend.save(data, function () {
       formReset.click();
       formToReset();
