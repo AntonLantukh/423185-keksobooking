@@ -3,10 +3,15 @@
 (function () {
 
   // Переменные формы
+  var dialogHandle = document.querySelector('.map__pin--main');
+  var address = document.querySelector('#address');
+
   var form = document.querySelector('.notice__form--disabled');
   var formData = document.querySelector('.notice__form');
   var formReset = document.querySelector('.form__reset');
   var map = document.querySelector('.map--faded');
+
+  var titleNotice = document.querySelector('#title');
 
   var checkinTime = document.querySelector('#timein');
   var checkoutTime = document.querySelector('#timeout');
@@ -17,12 +22,53 @@
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
 
+  var dropAvatar = document.querySelector('.drop-zone');
+  var dropImage = document.querySelector('.notice__preview').children[0];
+
   // Массивы данных формы
-  var checkTime = ['12:00', '13:00', '14:00'];
-  var house = ['flat', 'bungalo', 'house', 'palace'];
-  var price = [1000, 0, 5000, 10000];
+  var checkTimes = ['12:00', '13:00', '14:00'];
+  var houses = ['flat', 'bungalo', 'house', 'palace'];
+  var prices = [1000, 0, 5000, 10000];
   var rooms = ['1', '2', '3', '100'];
   var guests = ['1', '2', '3', '0'];
+
+
+  // Вызываем обработчики
+  titleNotice.addEventListener('invalid', setValidityTitle);
+  housePrice.addEventListener('invalid', setValidityPrice);
+  checkinTime.addEventListener('change', checkInSync);
+  checkoutTime.addEventListener('change', checkOutSync);
+  houseType.addEventListener('change', houseSync);
+  roomNumber.addEventListener('change', roomSync);
+
+  dropAvatar.addEventListener('dragover', function (event) {
+  });
+
+  dropAvatar.addEventListener('drop', function (event) {
+  //  event.preventDefault();
+    console.log(event);
+    event.target.style.backgroundColor = '';
+    dropImage.setAttribute('src', event.dataTransfer.files[0])
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/js/');
+    xhr.send(event.dataTransfer.files[0]);
+  });
+
+  dropAvatar.addEventListener('dragenter', function (event) {
+    event.target.style.backgroundColor = 'white';
+  });
+
+  dropAvatar.addEventListener('dragleave', function (event) {
+    event.target.style.backgroundColor = '';
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    window.backend.save(new FormData(formData), function () {
+      formToReset();
+    }, onErrorCallback);
+  });
+
 
   window.form = {
     // Функция отображения скрытых полей
@@ -36,38 +82,64 @@
   };
 
   // Колбэк под двустороннюю синхронизацию
-  var syncValue = function (secondElement, value) {
+  function syncValue(secondElement, value) {
     secondElement.value = value;
-  };
+  }
 
   // Колбэк под соотношение с мин
-  var syncValueMin = function (secondElement, value) {
+  function syncValueMin(secondElement, value) {
     secondElement.min = value;
     secondElement.placeholder = value;
-  };
+  }
 
   // Колбэк под синхронизацию комнат и гостей
-  var syncValueAsync = function (secondElement, value) {
+  function syncValueAsync(secondElement, value) {
     if (value === '100') {
       secondElement.value = '0';
     } else {
       secondElement.value = value;
     }
-  };
+  }
+
+  // Функция кастомной валидации для заголовка
+  function setValidityTitle() {
+    if (titleNotice.validity.tooShort) {
+      titleNotice.setCustomValidity('Минимальная длина заголовка: 30 символов');
+    } else if (titleNotice.validity.tooLong) {
+      titleNotice.setCustomValidity('Максимальная длина заголовка: 100 символов');
+    } else if (titleNotice.validity.valueMissing) {
+      titleNotice.setCustomValidity('Обязательное поле');
+    } else {
+      titleNotice.setCustomValidity('');
+    }
+  }
+
+  // Функция кастомной валидации для цены
+  function setValidityPrice() {
+    if (housePrice.validity.rangeUnderflow) {
+      housePrice.setCustomValidity('Минимальная цена: ' + housePrice.min + ' р.');
+    } else if (housePrice.validity.rangeOverflow) {
+      housePrice.setCustomValidity('Максимальная цена: 1000000 р.');
+    } else if (housePrice.validity.valueMissing) {
+      housePrice.setCustomValidity('Обязательное поле');
+    } else {
+      housePrice.setCustomValidity('');
+    }
+  }
 
   // Синхронизируем поле отъезда с полем заезда
   function checkInSync() {
-    window.synchronizeFields(checkinTime, checkoutTime, checkTime, checkTime, syncValue);
+    window.synchronizeFields(checkinTime, checkoutTime, checkTimes, checkTimes, syncValue);
   }
 
   // Синхронизируем поле заезда с полем отъезда
   function checkOutSync() {
-    window.synchronizeFields(checkoutTime, checkinTime, checkTime, checkTime, syncValue);
+    window.synchronizeFields(checkoutTime, checkinTime, checkTimes, checkTimes, syncValue);
   }
 
   // Синхронизируем поле жилья и цены
   function houseSync() {
-    window.synchronizeFields(houseType, housePrice, house, price, syncValueMin);
+    window.synchronizeFields(houseType, housePrice, houses, prices, syncValueMin);
   }
 
   // Синхронизируем поле комнат и гостей
@@ -75,24 +147,21 @@
     window.synchronizeFields(roomNumber, capacity, rooms, guests, syncValueAsync);
   }
 
-  // Вызываем обработчики
-  checkinTime.addEventListener('change', checkInSync);
-  checkoutTime.addEventListener('change', checkOutSync);
-  houseType.addEventListener('change', houseSync);
-  roomNumber.addEventListener('change', roomSync);
-
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    window.backend.save(new FormData(formData), function () {
-      formReset.click();
-    }, onErrorCallback);
-  });
+  function formToReset() {
+    formReset.click();
+    var pinPlaceY = dialogHandle.offsetTop;
+    var pinPlaceX = dialogHandle.offsetLeft;
+    var mainPinAfter = 22;
+    var mainPinHeight = dialogHandle.offsetHeight / 2 + mainPinAfter;
+    // Выводим текущие координаты в адресное строку
+    address.value = 'x: ' + (pinPlaceX) + ', y: ' + (pinPlaceY + mainPinHeight);
+  }
 
   // Коллбэк для формы в случае ошибки
-  var onErrorCallback = function (errorMessage) {
+  function onErrorCallback(errorMessage) {
     var errorNode = document.createElement('div');
     errorNode.style = 'z-index: 100; top: 1600px; position: absolute; margin: 0 auto; width: 1200px; height: 40px; text-align: center;  background-color: rgb(253, 94, 83); font-size: 35px; color: white;';
     errorNode.textContent = errorMessage + '. Пожалуйста, перезагрузите страницу.';
     document.body.insertAdjacentElement('afterbegin', errorNode);
-  };
+  }
 })();

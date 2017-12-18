@@ -4,7 +4,7 @@
 
   window.pin = {
     // Функция создания пина
-    renderPin: function (list) {
+    render: function (list) {
       var pinTemplate = document.querySelector('template').content.querySelector('.map__pin');
       var pinElement = pinTemplate.cloneNode(true);
       pinElement.setAttribute('style', 'left: ' + list.location.x + 'px' + '; top: ' + list.location.y + 'px');
@@ -14,7 +14,7 @@
     },
 
     // Функция смены класса активного пина
-    changeSelectPinActive: function (targetNode) {
+    changeSelectActive: function (targetNode) {
       var activePinNode = document.querySelector('.map__pin--active');
       if (activePinNode) {
         activePinNode.classList.toggle('map__pin--active');
@@ -23,7 +23,7 @@
     },
 
     // Функция снятия класса с неактивного пина
-    diactivatePin: function () {
+    diactivate: function () {
       var activePinNode = document.querySelector('.map__pin--active');
       if (activePinNode) {
         activePinNode.classList.remove('map__pin--active');

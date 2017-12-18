@@ -94,7 +94,7 @@
               <img src="img/muffin.png" alt="Аватар пользователя"  width="40" height="44">
             </div>
             <input type="file" id="avatar">
-            <label class="drop-zone" for="avatar">Загрузите или&nbsp;перетащите сюда фото</label>
+            <label class="drop-zone" for="avatar" dropzone="move">Загрузите или&nbsp;перетащите сюда фото</label>
             <p class="notice__info">Заполните все обязательные поля, назначьте цену, загрузите фотографии. Придумайте интересное описание. Оно сделает объявление более живым и привлекательным. Получившееся объявление должно давать гостям полное представление о вашем жилье.</p>
           </div>
         </div>
@@ -122,7 +122,7 @@
 
       <fieldset class="form__element" disabled>
         <label for="price">Цена за ночь, руб.</label>
-        <input id="price" name="price" type="number" placeholder="5000" minlength="0" maxlength="1000000" required>
+        <input id="price" name="price" type="number" placeholder="5000" value="1000"  min="1000" max="1000000" required>
       </fieldset>
 
       <fieldset class="form__element" disabled>

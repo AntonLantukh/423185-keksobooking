@@ -3,7 +3,6 @@
 (function () {
 
   window.data = {
-
     // Функция генерации объявления
     renderNotice: function (list) {
       var noticeTemplate = document.querySelector('template').content.querySelector('.map__card');

@@ -1,8 +1,9 @@
 'use strict';
 
 (function () {
+
   // Выносим модуль xhr с в отдельную функцию
-  var setup = function (onSuccessCallback, onErrorCallback) {
+  function setup(onSuccessCallback, onErrorCallback) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 5000;
@@ -22,7 +23,7 @@
     });
 
     return xhr;
-  };
+  }
 
   window.backend = {
     // Функция подгрузки данных с сервера

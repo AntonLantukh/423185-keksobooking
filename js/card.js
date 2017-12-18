@@ -7,39 +7,19 @@
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
 
-  window.card = {
-    // Функция удаления попапа
-    removePopup: function (popup) {
-      if (popup) {
-        popup.remove();
-      }
-    }
-  };
-
-  // Функция удаления попапа при нажатии на крестик
-  function onPopEscPress(event) {
-    var popup = noticeContainer.querySelector('.popup');
-    if (popup && event.keyCode === ESC_KEYCODE) {
-      window.card.removePopup(popup);
-      window.pin.diactivatePin();
-      document.removeEventListener('keydown', onPopEscPress);
-    } else {
-      return;
-    }
-  }
 
   // Обработчики события для попапа
-
   // Открытие попапа при клике
   pinContainer.addEventListener('click', function (event) {
     var popup = noticeContainer.querySelector('.popup');
-    var target = event.target.parentNode;
-    if (target.tagName !== 'BUTTON' || target.classList.contains('map__pin--main')) {
+    // var target = event.target.parentNode;
+    if (event.target.classList.contains('map__pin--main') || event.target.parentElement.classList.contains('map__pin--main') || event.target.parentElement.tagName === 'DIV') {
       return;
     }
-    window.pin.changeSelectPinActive(target);
-    window.card.removePopup(popup);
-    window.show.createPopup(event.target.parentNode.datashare);
+    var dataForFunctions = event.target.tagName === 'IMG' ? event.target.parentElement : event.target;
+    window.pin.changeSelectActive(dataForFunctions);
+    window.card.remove(popup);
+    window.show.createPopup(dataForFunctions.datashare);
 
     document.addEventListener('keydown', onPopEscPress);
   });
@@ -51,8 +31,8 @@
       return;
     }
 
-    window.pin.changeSelectPinActive(event.target);
-    window.card.removePopup(popup);
+    window.pin.changeSelectActive(event.target);
+    window.card.remove(popup);
     window.show.createPopup(event.target.datashare);
 
     document.addEventListener('keydown', onPopEscPress);
@@ -62,8 +42,8 @@
   noticeContainer.addEventListener('click', function (event) {
     var popup = noticeContainer.querySelector('.popup');
     if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close')) {
-      window.card.removePopup(popup);
-      window.pin.diactivatePin();
+      window.card.remove(popup);
+      window.pin.diactivate();
     }
   });
 
@@ -71,8 +51,29 @@
   noticeContainer.addEventListener('keydown', function (event) {
     var popup = noticeContainer.querySelector('.popup');
     if (event.target.tagName === 'BUTTON' && event.target.classList.contains('popup__close') && event.keyCode === ENTER_KEYCODE) {
-      window.card.removePopup(popup);
-      window.pin.diactivatePin();
+      window.card.remove(popup);
+      window.pin.diactivate();
     }
   });
+
+  window.card = {
+    // Функция удаления попапа
+    remove: function (popup) {
+      if (popup) {
+        popup.remove();
+      }
+    }
+  };
+
+  // Функция удаления попапа при нажатии на крестик
+  function onPopEscPress(event) {
+    var popup = noticeContainer.querySelector('.popup');
+    if (popup && event.keyCode === ESC_KEYCODE) {
+      window.card.remove(popup);
+      window.pin.diactivate();
+      document.removeEventListener('keydown', onPopEscPress);
+    } else {
+      return;
+    }
+  }
 })();

@@ -2,7 +2,7 @@
 
 (function () {
 
-  // Перетаскивание пина
+  // Переменные для перетаскивания
   var dialogHandle = document.querySelector('.map__pin--main');
   var address = document.querySelector('#address');
   var body = document.querySelector('body');
@@ -15,6 +15,13 @@
   var mainPinAfter = 22;
   var mainPinHeight = dialogHandle.offsetHeight / 2 + mainPinAfter;
 
+  var pinPlaceY = dialogHandle.offsetTop;
+  var pinPlaceX = dialogHandle.offsetLeft;
+  // Выводим текущие координаты в адресное строку
+  address.value = 'x: ' + (pinPlaceX) + ', y: ' + (pinPlaceY + mainPinHeight);
+
+
+  // Перетаскивание пина
   dialogHandle.addEventListener('mousedown', function (event) {
     event.preventDefault();
 
@@ -22,7 +29,7 @@
       x: event.clientX,
       y: event.clientY,
     };
-    var onMouseMove = function (moveEvent) {
+    function onMouseMove(moveEvent) {
       moveEvent.preventDefault();
       var shift = {
         x: startCoords.x - moveEvent.clientX,
@@ -34,8 +41,6 @@
       };
 
       // Высчитываем рамки для передвижения пина
-      var pinPlaceY = dialogHandle.offsetTop - shift.y;
-      var pinPlaceX = dialogHandle.offsetLeft - shift.x;
 
       if (pinPlaceY > limitYBottom) {
         pinPlaceY = limitYBottom;
@@ -59,12 +64,12 @@
 
       // Выводим текущие координаты в адресное строку
       address.value = 'x: ' + (pinPlaceX) + ', y: ' + (pinPlaceY + mainPinHeight);
-    };
-    var onMouseUp = function (upEvent) {
+    }
+    function onMouseUp(upEvent) {
       upEvent.preventDefault();
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
-    };
+    }
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });

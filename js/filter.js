@@ -10,6 +10,7 @@
   var filterObject = {};
   var prevTimer;
 
+
   // Событие клика на фильтр, создание динамического объекта с фильтрами
   pinFilter.addEventListener('change', function () {
     var features = [];
@@ -32,13 +33,19 @@
   // Функця фильтрации пинов
   function filterPins() {
     var pinNodes = Array.from(pinContainer.children).slice(2);
+
+    // Создаем первый цикл для прохождения по каждой ноде
     pinNodes.filter(function (pinNode) {
       var isPassed = true;
       var offer = pinNode.datashare.offer;
+
+      // Второй цикл для прохождения по свойствам ноды
       for (var key in offer) {
         if (offer.hasOwnProperty(key)) {
           var isPassedKey;
           var value = offer[key];
+
+          // Проверка свойств на совпадения текщим фильтрам
           if (filterObject[key] === 'any') {
             continue;
           } else if (key === 'type') {
@@ -58,11 +65,13 @@
           }
         }
       }
+
+      // Показываем или скрывем ноду, в зависимости от соответствия фильтрам
       if (isPassed === false) {
         pinNode.classList.add('hidden');
         var popup = noticeContainer.querySelector('.popup');
-        window.pin.diactivatePin();
-        window.card.removePopup(popup);
+        window.pin.diactivate();
+        window.card.remove(popup);
       } else if (isPassed === true && pinNode.classList.contains('hidden') === true) {
         pinNode.classList.remove('hidden');
       }
