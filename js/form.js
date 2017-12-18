@@ -2,8 +2,12 @@
 
 (function () {
 
-  // Переменные формы
+  // Данные пина по умолчанию
   var dialogHandle = document.querySelector('.map__pin--main');
+  var pinXDefault = dialogHandle.offsetLeft;
+  var pinYDefault = dialogHandle.offsetTop;
+
+  // Переменные формы
   var address = document.querySelector('#address');
 
   var form = document.querySelector('.notice__form--disabled');
@@ -22,9 +26,7 @@
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
 
-  var dropAvatar = document.querySelector('.drop-zone');
-  var inputAvatar = document.querySelector('#avatar');
-  var dropImage = document.querySelector('.notice__preview').children[0];
+  var avatarPreview = document.querySelector('.notice__preview').children[0];
 
   // Массивы данных формы
   var checkTimes = ['12:00', '13:00', '14:00'];
@@ -35,36 +37,15 @@
 
 
   // Вызываем обработчики
+  // Обработчик формы для отсылки на сервер
+  form.addEventListener('submit', formToSubmit);
+  form.addEventListener('reset', formToReset);
   titleNotice.addEventListener('invalid', setValidityTitle);
   housePrice.addEventListener('invalid', setValidityPrice);
   checkinTime.addEventListener('change', checkInSync);
   checkoutTime.addEventListener('change', checkOutSync);
   houseType.addEventListener('change', houseSync);
   roomNumber.addEventListener('change', roomSync);
-
-  // Обработчики перетаскивания
-  dropAvatar.addEventListener('dragover', function (event) {
-    event.preventDefault();
-    return false;
-  });
-
-  // Событие конца перетаскивания
-  dropAvatar.addEventListener('dragenter', function (event) {
-    event.target.style.backgroundColor = 'white';
-    event.preventDefault();
-  });
-
-  // Событие начала перетаскивания
-  dropAvatar.addEventListener('dragleave', function (event) {
-    event.target.style.backgroundColor = '';
-    event.preventDefault();
-  });
-
-  // Событие дроп на указанной зоне
-  dropAvatar.addEventListener('drop', function () {
-    renderDrop();
-  });
-
 
   window.form = {
     // Функция отображения скрытых полей
@@ -76,30 +57,6 @@
       form.classList.remove('notice__form--disabled');
     }
   };
-
-
-  // Обработчик перетаскивания
-  function renderDrop() {
-    event.preventDefault();
-    event.target.style.backgroundColor = '';
-    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      var reader = new FileReader();
-    }
-    reader.addEventListener('load', function (evt) {
-      dropImage.setAttribute('src', evt.target.result);
-    });
-    reader.readAsDataURL(event.dataTransfer.files[0]);
-  }
-
-  // Обработчик формы для отсылки на сервер
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var data = new FormData(formData);
-    data.append('avatar', dropImage.src);
-    window.backend.save(data, function () {
-      formToReset();
-    }, onErrorCallback);
-  });
 
   // Колбэк под двустороннюю синхронизацию
   function syncValue(secondElement, value) {
@@ -167,14 +124,28 @@
     window.synchronizeFields(roomNumber, capacity, rooms, guests, syncValueAsync);
   }
 
+  // Функция сабмита формы
+  function formToSubmit() {
+    event.preventDefault();
+    var data = new FormData(formData);
+    data.append('avatar', window.formFragnDrop.avatar);
+    window.backend.save(data, function () {
+      formReset.click();
+      formToReset();
+    }, onErrorCallback);
+  }
+
+  // Фуункция ресета формы
   function formToReset() {
-    formReset.click();
-    var pinPlaceY = dialogHandle.offsetTop;
-    var pinPlaceX = dialogHandle.offsetLeft;
+    dialogHandle.style.top = pinYDefault + 'px';
+    dialogHandle.style.left = pinXDefault + 'px';
     var mainPinAfter = 22;
     var mainPinHeight = dialogHandle.offsetHeight / 2 + mainPinAfter;
     // Выводим текущие координаты в адресное строку
-    address.value = 'x: ' + (pinPlaceX) + ', y: ' + (pinPlaceY + mainPinHeight);
+    address.value = 'x: ' + (pinXDefault) + ', y: ' + (pinYDefault + mainPinHeight);
+
+    // Ставим аватарку по умолчанию
+    avatarPreview.setAttribute('src', 'img/muffin.png');
   }
 
   // Коллбэк для формы в случае ошибки
