@@ -16,6 +16,7 @@
 
   // Поведение формы и карты при нажатии на пин
   function renderMap() {
+
     // Задаем цикл для функции генерации элемента (метки)
     if (map.classList.contains('map--faded')) {
       for (var i = 0; i <= 4; i++) {

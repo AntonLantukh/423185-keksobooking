@@ -2,6 +2,13 @@
 
 (function () {
 
+  // Тип жилья
+  var flatType = {
+    'flat': 'Квартира',
+    'bungalo': 'Бунгало',
+    'house': 'Дом'
+  };
+
   window.data = {
     // Функция генерации объявления
     renderNotice: function (list) {
@@ -15,7 +22,7 @@
       noticeElement.children[2].textContent = list.offer.title;
       noticeElement.children[3].children[0].textContent = list.location.x + ', ' + list.location.y;
       noticeElement.children[4].innerHTML = list.offer.price + '&#x20bd;/ночь';
-      noticeElement.children[5].textContent = defineFlatType(list);
+      noticeElement.children[5].textContent = flatType[list.offer.type];
       noticeElement.children[6].textContent = list.offer.rooms + ' для ' + list.offer.guests + ' гостей';
       noticeElement.children[7].textContent = 'Зазед после ' + list.offer.checkin + ', выезд до ' + list.offer.checkout;
       noticeElement.children[9].textContent = list.offer.description;
@@ -36,17 +43,4 @@
       return noticeElement;
     }
   };
-
-  // Функция определения типа жилья
-  function defineFlatType(list) {
-    var type;
-    if (list.offer.type === 'flat') {
-      type = 'Квартира';
-    } else if (list.offer.type === 'bungalo') {
-      type = 'Бунгало';
-    } else if (list.offer.type === 'house') {
-      type = 'Дом';
-    }
-    return type;
-  }
 })();

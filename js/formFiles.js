@@ -2,6 +2,7 @@
 
 (function () {
 
+  // Переменные под загрузку файлов
   var dropZone = document.querySelectorAll('.drop-zone');
 
   var avatarInput = document.querySelector('#avatar');
@@ -11,7 +12,7 @@
 
   var photoContainer = document.querySelector('.form__photo-container');
 
-  // Обработчики перетаскивания
+  // Обработчики перетаскивания аватарки
   dropZone[0].addEventListener('dragover', function (event) {
     event.preventDefault();
     return false;
@@ -53,6 +54,22 @@
     renderDropPhotos();
   });
 
+  // Обработчики перетаскивания фотографий объекта
+  photoContainer.addEventListener('dragover', function (event) {
+    event.preventDefault();
+    return false;
+  });
+
+  photoContainer.addEventListener('dragenter', function (event) {
+    event.target.style.backgroundColor = 'white';
+    event.preventDefault();
+  });
+
+  photoContainer.addEventListener('dragleave', function (event) {
+    event.target.style.backgroundColor = '';
+    event.preventDefault();
+  });
+
   // Событие загрузки через инпут
   avatarInput.addEventListener('change', function () {
     uploadAvatar();
@@ -62,7 +79,8 @@
     uploadPhotos();
   });
 
-  // Функция загрузки через input
+
+  // Функция загрузки через input для аватара
   function uploadAvatar() {
     event.preventDefault();
     if (event.target.files && event.target.files[0]) {
@@ -77,6 +95,7 @@
     };
   }
 
+  // Функция загрузки через input для фото
   function uploadPhotos() {
     event.preventDefault();
     if (event.target.files && event.target.files[0]) {
@@ -91,7 +110,8 @@
     };
   }
 
-  // Обработчик перетаскивания
+
+  // Функция рендера аватарки после перетаскивания
   function renderDropAvatar() {
     event.preventDefault();
     event.target.style.backgroundColor = '';
@@ -107,6 +127,7 @@
     };
   }
 
+  // Функция рендера фото после перетаскивания
   function renderDropPhotos() {
     event.preventDefault();
     event.target.style.backgroundColor = '';
@@ -122,16 +143,35 @@
     };
   }
 
-  // Коллбэки для обработчиков аватара
-  function dropAvatarCallback(evt) {
-    dropImage.setAttribute('src', evt.target.result);
+  // Коллбэк для обработчиков аватара
+  function dropAvatarCallback(event) {
+    dropImage.setAttribute('src', event.target.result);
   }
 
-  function dropPhotosCallback(evt) {
+  // Коллбэк для обработчиков фото
+  function dropPhotosCallback() {
     var imgNode = document.createElement('img');
-    imgNode.setAttribute('src', evt.target.result);
+    imgNode.setAttribute('src', event.target.result);
     imgNode.style = 'width: 70px; height: 70px';
+    imgNode.setAttribute('draggable', true);
     photoContainer.appendChild(imgNode);
-  }
+    var imgCreated = photoContainer.querySelector('img');
 
+    // Событие начала перетаскивания картинки в рамках контейнера с фотками
+    imgNode.addEventListener('dragstart', function () {
+      if (event.target.tagName.toLowerCase() === 'img') {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', imgCreated.innerHTML);
+      }
+    });
+
+    // Событие дропа картинки в рамках контейнера с фотками
+    photoContainer.addEventListener('drop', function () {
+      event.preventDefault();
+      event.target.style.backgroundColor = '';
+      event.dataTransfer.dropEffect = 'move';
+      event.target.innerHTML = event.dataTransfer.getData('text/plain');
+      photoContainer.appendChild(imgNode);
+    });
+  }
 })();
