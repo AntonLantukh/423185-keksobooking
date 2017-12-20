@@ -3,6 +3,8 @@
 (function () {
 
   // Переменные под загрузку файлов
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
   var dropZone = document.querySelectorAll('.drop-zone');
 
   var avatarInput = document.querySelector('#avatar');
@@ -47,11 +49,15 @@
 
   // Событие дроп на указанной зоне
   dropZone[0].addEventListener('drop', function () {
-    renderDropAvatar();
+    event.preventDefault();
+    event.target.style.backgroundColor = '';
+    uploadFile(event.dataTransfer.files[0], dropAvatarCallback);
   });
 
   dropZone[1].addEventListener('drop', function () {
-    renderDropPhotos();
+    event.preventDefault();
+    event.target.style.backgroundColor = '';
+    uploadFile(event.dataTransfer.files[0], dropPhotosCallback);
   });
 
   // Обработчики перетаскивания фотографий объекта
@@ -72,75 +78,25 @@
 
   // Событие загрузки через инпут
   avatarInput.addEventListener('change', function () {
-    uploadAvatar();
+    uploadFile(avatarInput.files[0], dropAvatarCallback);
   });
 
   photosInput.addEventListener('change', function () {
-    uploadPhotos();
+    uploadFile(photosInput.files[0], dropPhotosCallback);
   });
 
 
-  // Функция загрузки через input для аватара
-  function uploadAvatar() {
-    event.preventDefault();
-    if (event.target.files && event.target.files[0]) {
+  // Функция загрузки через input для аватара и фото
+  function uploadFile(fileChosen, callback) {
+    var file = fileChosen;
+    var fileName = file.name.toLowerCase();
+    if (FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    })) {
       var reader = new FileReader();
+      reader.addEventListener('load', callback);
+      reader.readAsDataURL(fileChosen);
     }
-    reader.addEventListener('load', dropAvatarCallback);
-    reader.readAsDataURL(event.target.files[0]);
-
-    // Передаем файл для вставки в форму
-    window.formFragnDrop = {
-      'avatar': event.target.files[0]
-    };
-  }
-
-  // Функция загрузки через input для фото
-  function uploadPhotos() {
-    event.preventDefault();
-    if (event.target.files && event.target.files[0]) {
-      var reader = new FileReader();
-    }
-    reader.addEventListener('load', dropPhotosCallback);
-    reader.readAsDataURL(event.target.files[0]);
-
-    // Передаем файл для вставки в форму
-    window.formFragnDrop = {
-      'photos': event.target.files
-    };
-  }
-
-
-  // Функция рендера аватарки после перетаскивания
-  function renderDropAvatar() {
-    event.preventDefault();
-    event.target.style.backgroundColor = '';
-    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      var reader = new FileReader();
-    }
-    reader.addEventListener('load', dropAvatarCallback);
-    reader.readAsDataURL(event.dataTransfer.files[0]);
-
-    // Передаем файл для вставки в форму
-    window.formFragnDrop = {
-      'avatar': event.dataTransfer.files[0]
-    };
-  }
-
-  // Функция рендера фото после перетаскивания
-  function renderDropPhotos() {
-    event.preventDefault();
-    event.target.style.backgroundColor = '';
-    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      var reader = new FileReader();
-    }
-    reader.addEventListener('load', dropPhotosCallback);
-    reader.readAsDataURL(event.dataTransfer.files[0]);
-
-    // Передаем файл для вставки в форму
-    window.formFragnDrop = {
-      'photos': event.dataTransfer.files
-    };
   }
 
   // Коллбэк для обработчиков аватара
@@ -155,23 +111,5 @@
     imgNode.style = 'width: 70px; height: 70px';
     imgNode.setAttribute('draggable', true);
     photoContainer.appendChild(imgNode);
-    var imgCreated = photoContainer.querySelector('img');
-
-    // Событие начала перетаскивания картинки в рамках контейнера с фотками
-    imgNode.addEventListener('dragstart', function () {
-      if (event.target.tagName.toLowerCase() === 'img') {
-        event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', imgCreated.innerHTML);
-      }
-    });
-
-    // Событие дропа картинки в рамках контейнера с фотками
-    photoContainer.addEventListener('drop', function () {
-      event.preventDefault();
-      event.target.style.backgroundColor = '';
-      event.dataTransfer.dropEffect = 'move';
-      event.target.innerHTML = event.dataTransfer.getData('text/plain');
-      photoContainer.appendChild(imgNode);
-    });
   }
 })();

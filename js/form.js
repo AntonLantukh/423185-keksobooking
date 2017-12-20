@@ -26,6 +26,7 @@
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
 
+  var photoContainer = document.querySelector('.form__photo-container');
   var avatarPreview = document.querySelector('.notice__preview').children[0];
 
   // Массивы данных формы
@@ -128,8 +129,6 @@
   function formToSubmit() {
     event.preventDefault();
     var data = new FormData(formData);
-    data.append('avatar', window.formFragnDrop.avatar);
-    data.append('photos', window.formFragnDrop.photos);
     window.backend.save(data, function () {
       formReset.click();
       formToReset();
@@ -147,6 +146,10 @@
 
     // Ставим аватарку по умолчанию
     avatarPreview.setAttribute('src', 'img/muffin.png');
+    var photos = photoContainer.querySelectorAll('img');
+    Array.from(photos).forEach(function (photo) {
+      photo.remove();
+    });
   }
 
   // Коллбэк для формы в случае ошибки
