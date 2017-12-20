@@ -60,22 +60,6 @@
     uploadFile(event.dataTransfer.files[0], dropPhotosCallback);
   });
 
-  // Обработчики перетаскивания фотографий объекта
-  photoContainer.addEventListener('dragover', function (event) {
-    event.preventDefault();
-    return false;
-  });
-
-  photoContainer.addEventListener('dragenter', function (event) {
-    event.target.style.backgroundColor = 'white';
-    event.preventDefault();
-  });
-
-  photoContainer.addEventListener('dragleave', function (event) {
-    event.target.style.backgroundColor = '';
-    event.preventDefault();
-  });
-
   // Событие загрузки через инпут
   avatarInput.addEventListener('change', function () {
     uploadFile(avatarInput.files[0], dropAvatarCallback);
